@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import timedelta, datetime
@@ -244,6 +244,85 @@ def create_sign(
     db.commit()
     db.refresh(db_sign)
     return db_sign
+
+
+# ==================== ENDPOINTS FAVORIS ====================
+
+@app.post("/api/favorites", response_model=schemas.FavoriteResponse, status_code=status.HTTP_201_CREATED)
+def add_favorite(
+    sign_id: int = Query(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Ajoute un signe aux favoris"""
+    # Vérifier si le signe existe
+    sign = db.query(models.Sign).filter(models.Sign.id == sign_id).first()
+    if not sign:
+        raise HTTPException(status_code=404, detail="Sign not found")
+    
+    # Vérifier si déjà en favoris
+    existing = db.query(models.Favorite).filter(
+        models.Favorite.user_id == current_user.id,
+        models.Favorite.sign_id == sign_id
+    ).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Sign already in favorites")
+    
+    # Créer le favori
+    favorite = models.Favorite(
+        user_id=current_user.id,
+        sign_id=sign_id
+    )
+    db.add(favorite)
+    db.commit()
+    db.refresh(favorite)
+    return favorite
+
+
+@app.delete("/api/favorites/{sign_id}", status_code=status.HTTP_200_OK)
+def remove_favorite(
+    sign_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Retire un signe des favoris"""
+    favorite = db.query(models.Favorite).filter(
+        models.Favorite.user_id == current_user.id,
+        models.Favorite.sign_id == sign_id
+    ).first()
+    
+    if not favorite:
+        raise HTTPException(status_code=404, detail="Favorite not found")
+    
+    db.delete(favorite)
+    db.commit()
+    return {"message": "Favorite removed"}
+
+
+@app.get("/api/favorites", response_model=List[schemas.FavoriteResponse])
+def get_favorites(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Récupère tous les favoris de l'utilisateur"""
+    favorites = db.query(models.Favorite).filter(
+        models.Favorite.user_id == current_user.id
+    ).all()
+    return favorites
+
+
+@app.get("/api/favorites/{sign_id}/check", response_model=dict)
+def check_favorite(
+    sign_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Vérifie si un signe est en favoris"""
+    favorite = db.query(models.Favorite).filter(
+        models.Favorite.user_id == current_user.id,
+        models.Favorite.sign_id == sign_id
+    ).first()
+    return {"is_favorite": favorite is not None}
 
 
 # ==================== ENDPOINTS PROGRESS ====================

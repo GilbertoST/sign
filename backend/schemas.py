@@ -226,3 +226,22 @@ class XPUpdateResponse(BaseModel):
     level_up: bool
     progress_to_next: float
 
+
+# ==================== SCHÉMAS FAVORIS ====================
+
+class FavoriteBase(BaseModel):
+    user_id: int
+    sign_id: int
+
+
+class FavoriteCreate(FavoriteBase):
+    pass
+
+
+class FavoriteResponse(FavoriteBase):
+    id: int
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+

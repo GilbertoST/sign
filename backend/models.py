@@ -33,6 +33,7 @@ class User(Base):
     progress = relationship('Progress', back_populates='user', cascade='all, delete-orphan')
     learning_sessions = relationship('LearningSession', back_populates='user', cascade='all, delete-orphan')
     user_challenges = relationship('UserChallenge', back_populates='user', cascade='all, delete-orphan')
+    favorites = relationship('Favorite', back_populates='user', cascade='all, delete-orphan')
 
 
 class Sign(Base):
@@ -49,6 +50,7 @@ class Sign(Base):
     # Relations
     progress = relationship('Progress', back_populates='sign', cascade='all, delete-orphan')
     attempts = relationship('Attempt', back_populates='sign', cascade='all, delete-orphan')
+    favorites = relationship('Favorite', back_populates='sign', cascade='all, delete-orphan')
 
 
 class Progress(Base):
@@ -127,4 +129,17 @@ class UserChallenge(Base):
     # Relations
     user = relationship('User', back_populates='user_challenges')
     challenge = relationship('Challenge', back_populates='user_challenges')
+
+
+class Favorite(Base):
+    __tablename__ = 'favorites'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    sign_id = Column(Integer, ForeignKey('signs.id'), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relations
+    user = relationship('User', back_populates='favorites')
+    sign = relationship('Sign', back_populates='favorites')
 

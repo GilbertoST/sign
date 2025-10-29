@@ -470,5 +470,45 @@ class ApiService {
       throw Exception(error['detail'] ?? 'Échec ajout XP');
     }
   }
+
+  // ==================== FAVORIS ====================
+
+  Future<void> addFavorite(int signId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/favorites?sign_id=$signId'),
+      headers: _getHeaders(includeAuth: true),
+    );
+
+    if (response.statusCode != 201) {
+      final error = jsonDecode(response.body);
+      throw Exception(error['detail'] ?? 'Échec ajout favori');
+    }
+  }
+
+  Future<void> removeFavorite(int signId) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/api/favorites/$signId'),
+      headers: _getHeaders(includeAuth: true),
+    );
+
+    if (response.statusCode != 200) {
+      final error = jsonDecode(response.body);
+      throw Exception(error['detail'] ?? 'Échec suppression favori');
+    }
+  }
+
+  Future<bool> isFavorite(int signId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/favorites/$signId/check'),
+      headers: _getHeaders(includeAuth: true),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['is_favorite'] ?? false;
+    } else {
+      return false;
+    }
+  }
 }
 

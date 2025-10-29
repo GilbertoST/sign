@@ -10,6 +10,7 @@ services:
     startCommand: >
       bash -lc "cd backend &&
       python init_db.py &&
+      python migrate_add_favorites.py &&
       python init_challenges.py &&
       uvicorn main:app --host 0.0.0.0 --port $PORT"
     envVars:

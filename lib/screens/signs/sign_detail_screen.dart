@@ -14,6 +14,89 @@ class SignDetailScreen extends StatefulWidget {
 }
 
 class _SignDetailScreenState extends State<SignDetailScreen> {
+  bool _isFavorite = false;
+  bool _isLoadingFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFavoriteStatus();
+  }
+
+  Future<void> _checkFavoriteStatus() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (authProvider.isGuest) {
+      setState(() => _isFavorite = false);
+      return;
+    }
+
+    try {
+      final isFav = await authProvider.apiService.isFavorite(widget.sign.id);
+      if (mounted) {
+        setState(() => _isFavorite = isFav);
+      }
+    } catch (e) {
+      debugPrint('Erreur vérification favori: $e');
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    
+    if (authProvider.isGuest) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Connectez-vous pour ajouter aux favoris'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
+    setState(() => _isLoadingFavorite = true);
+
+    try {
+      if (_isFavorite) {
+        await authProvider.apiService.removeFavorite(widget.sign.id);
+        if (mounted) {
+          setState(() => _isFavorite = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${widget.sign.letter} retiré des favoris'),
+              backgroundColor: Colors.grey,
+            ),
+          );
+        }
+      } else {
+        await authProvider.apiService.addFavorite(widget.sign.id);
+        if (mounted) {
+          setState(() => _isFavorite = true);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${widget.sign.letter} ajouté aux favoris !'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingFavorite = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
@@ -22,17 +105,21 @@ class _SignDetailScreenState extends State<SignDetailScreen> {
       appBar: AppBar(
         title: Text('Lettre ${widget.sign.letter}'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.bookmark_border),
-            onPressed: () {
-              // TODO: Ajouter aux favoris
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Fonctionnalité à venir !'),
-                ),
-              );
-            },
-          ),
+          if (_isLoadingFavorite)
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            )
+          else
+            IconButton(
+              icon: Icon(_isFavorite ? Icons.bookmark : Icons.bookmark_border),
+              color: _isFavorite ? Colors.amber : null,
+              onPressed: _toggleFavorite,
+            ),
         ],
       ),
       body: SingleChildScrollView(

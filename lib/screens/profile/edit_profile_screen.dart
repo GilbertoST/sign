@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 import '../../services/auth_provider.dart';
 
@@ -116,14 +119,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           radius: 60,
                           backgroundImage: _pickedImageFile != null
                               ? FileImage(_pickedImageFile!)
-                              : (_profilePictureUrlController.text.isNotEmpty
-                                  ? NetworkImage(_profilePictureUrlController.text) as ImageProvider
-                                  : (user.profilePictureUrl != null
-                                      ? NetworkImage(user.profilePictureUrl!)
-                                      : null)),
+                              : (_profilePictureUrlController.text.isNotEmpty && 
+                                 _profilePictureUrlController.text.startsWith('/') &&
+                                 File(_profilePictureUrlController.text).existsSync()
+                                  ? FileImage(File(_profilePictureUrlController.text)) as ImageProvider
+                                  : (user.profilePictureUrl != null && 
+                                     user.profilePictureUrl!.startsWith('/') &&
+                                     File(user.profilePictureUrl!).existsSync()
+                                      ? FileImage(File(user.profilePictureUrl!)) as ImageProvider
+                                      : (user.profilePictureUrl != null && 
+                                         user.profilePictureUrl!.startsWith('http')
+                                          ? NetworkImage(user.profilePictureUrl!) as ImageProvider
+                                          : null))),
                           child: _pickedImageFile == null &&
-                                  _profilePictureUrlController.text.isEmpty &&
-                                  user.profilePictureUrl == null
+                                  (_profilePictureUrlController.text.isEmpty || 
+                                   !_profilePictureUrlController.text.startsWith('/') ||
+                                   !File(_profilePictureUrlController.text).existsSync()) &&
+                                  (user.profilePictureUrl == null ||
+                                   (!user.profilePictureUrl!.startsWith('/') && 
+                                    !user.profilePictureUrl!.startsWith('http')))
                               ? Text(
                                   user.username[0].toUpperCase(),
                                   style: const TextStyle(fontSize: 40),
@@ -134,16 +148,56 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           heroTag: 'pick_profile_image',
                           onPressed: () async {
                             try {
+                              // Demander permission pour accéder au stockage
+                              PermissionStatus permissionStatus;
+                              if (Theme.of(context).platform == TargetPlatform.android) {
+                                // Pour Android 13+, utiliser photos, sinon storage
+                                final photosStatus = await Permission.photos.status;
+                                if (photosStatus.isGranted) {
+                                  permissionStatus = photosStatus;
+                                } else if (photosStatus.isDenied) {
+                                  permissionStatus = await Permission.photos.request();
+                                } else {
+                                  // Fallback sur storage pour versions antérieures
+                                  permissionStatus = await Permission.storage.request();
+                                }
+                              } else {
+                                permissionStatus = await Permission.photos.request();
+                              }
+                              
+                              if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Permission nécessaire pour accéder aux photos'),
+                                      backgroundColor: Colors.orange,
+                                      action: SnackBarAction(
+                                        label: 'Paramètres',
+                                        onPressed: openAppSettings,
+                                      ),
+                                    ),
+                                  );
+                                }
+                                return;
+                              }
+
                               final picker = ImagePicker();
                               final picked = await picker.pickImage(
                                 source: ImageSource.gallery,
                                 imageQuality: 85,
                               );
+                              
                               if (picked != null) {
+                                // Copier l'image dans le répertoire de l'app pour persistance
+                                final appDir = await getApplicationDocumentsDirectory();
+                                final fileName = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
+                                final savedImage = File(path.join(appDir.path, fileName));
+                                await File(picked.path).copy(savedImage.path);
+                                
                                 setState(() {
-                                  _pickedImageFile = File(picked.path);
-                                  // On stocke le chemin local dans l'URL pour persistance simple côté app
-                                  _profilePictureUrlController.text = picked.path;
+                                  _pickedImageFile = savedImage;
+                                  // Stocker le chemin local pour persistance
+                                  _profilePictureUrlController.text = savedImage.path;
                                 });
                               }
                             } catch (e) {
