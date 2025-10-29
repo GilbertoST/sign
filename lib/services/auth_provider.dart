@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/api_config.dart';
 import '../models/user.dart';
 import 'api_service.dart';
 
@@ -25,6 +26,13 @@ class AuthProvider with ChangeNotifier {
 
     try {
       final prefs = await SharedPreferences.getInstance();
+      // Invalider tout token si l'URL de l'API a changé (ex: localhost -> Render)
+      final lastBaseUrl = prefs.getString('api_base_url');
+      const currentBaseUrl = ApiConfig.baseUrl;
+      if (lastBaseUrl != currentBaseUrl) {
+        await prefs.remove('auth_token');
+        await prefs.setString('api_base_url', currentBaseUrl);
+      }
       final token = prefs.getString('auth_token');
 
       if (token != null) {
@@ -49,6 +57,7 @@ class AuthProvider with ChangeNotifier {
       final token = await _apiService.login(username, password);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('auth_token', token);
+      await prefs.setString('api_base_url', ApiConfig.baseUrl);
 
       _currentUser = await _apiService.getCurrentUser();
       _isAuthenticated = true;
@@ -106,6 +115,7 @@ class AuthProvider with ChangeNotifier {
       final token = await _apiService.loginAsGuest();
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('auth_token', token);
+      await prefs.setString('api_base_url', ApiConfig.baseUrl);
 
       _currentUser = await _apiService.getCurrentUser();
       _isAuthenticated = true;
