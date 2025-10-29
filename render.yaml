@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: sign-lsf-api
+    env: python
+    buildCommand: cd backend && pip install -r requirements.txt && python init_db.py && python init_challenges.py
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///./sign_language.db
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "10080"
+      - key: PYTHON_VERSION
+        value: "3.12.0"
+
