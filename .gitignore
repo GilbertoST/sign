@@ -16,6 +16,16 @@ backend/.env
 backend/sign_language.db
 backend/server.log
 
+# Documentation - tous les .md sauf README.md seront ignorés
+# (garder en local, ne pas push sur GitHub)
+*.md
+!README.md
+
+# Sous-dossiers
+assets/README.md
+backend/README.md
+ios/**/README.md
+
 # IDE
 .vscode/
 .idea/
