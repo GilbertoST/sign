@@ -227,10 +227,15 @@ class _SignDetailScreenState extends State<SignDetailScreen> {
 
   Future<void> _openYouTubeVideo(BuildContext context) async {
     try {
-      final url = Uri.parse(widget.sign.videoPath!);
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
+      final raw = widget.sign.videoPath!.trim();
+      final url = Uri.parse(raw.startsWith('http') ? raw : 'https://$raw');
+      // Essaye d'abord avec l'application/ navigateur externe
+      if (await canLaunchUrl(url) &&
+          await launchUrl(url, mode: LaunchMode.externalApplication)) {
+        return;
+      }
+      // Fallback WebView interne
+      if (!await launchUrl(url, mode: LaunchMode.inAppBrowserView)) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

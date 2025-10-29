@@ -70,6 +70,11 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        // Encouragements en tête de page
+                        if (_stats != null) ...[
+                          _EncouragementCard(stats: _stats!),
+                          const SizedBox(height: 24),
+                        ],
                         // Carte de niveau
                         Card(
                           color: Colors.blue[700],
@@ -164,44 +169,45 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         const SizedBox(height: 16),
-                        GridView.count(
-                          crossAxisCount: 2,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 16,
-                          childAspectRatio: 1.3,
-                          children: [
-                            _StatCard(
-                              icon: Icons.school,
-                              title: 'Tentatives',
-                              value: _stats!.totalAttempts.toString(),
-                              color: Colors.blue,
-                            ),
-                            _StatCard(
-                              icon: Icons.check_circle,
-                              title: 'Taux de réussite',
-                              value: '${_stats!.successRate.toStringAsFixed(1)}%',
-                              color: Colors.green,
-                            ),
-                            _StatCard(
-                              icon: Icons.event,
-                              title: 'Sessions',
-                              value: _stats!.totalSessions.toString(),
-                              color: Colors.orange,
-                            ),
-                            _StatCard(
-                              icon: Icons.emoji_events,
-                              title: 'Signes appris',
-                              value: _stats!.masteredSigns.toString(),
-                              color: Colors.purple,
-                            ),
-                          ],
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final isSmall = constraints.maxWidth < 360;
+                            return GridView.count(
+                              crossAxisCount: 2,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              mainAxisSpacing: 16,
+                              crossAxisSpacing: 16,
+                              childAspectRatio: isSmall ? 1.1 : 1.3,
+                              children: [
+                                _StatCard(
+                                  icon: Icons.school,
+                                  title: 'Tentatives',
+                                  value: _stats!.totalAttempts.toString(),
+                                  color: Colors.blue,
+                                ),
+                                _StatCard(
+                                  icon: Icons.check_circle,
+                                  title: 'Taux de réussite',
+                                  value: '${_stats!.successRate.toStringAsFixed(1)}%',
+                                  color: Colors.green,
+                                ),
+                                _StatCard(
+                                  icon: Icons.event,
+                                  title: 'Sessions',
+                                  value: _stats!.totalSessions.toString(),
+                                  color: Colors.orange,
+                                ),
+                                _StatCard(
+                                  icon: Icons.emoji_events,
+                                  title: 'Signes appris',
+                                  value: _stats!.masteredSigns.toString(),
+                                  color: Colors.purple,
+                                ),
+                              ],
+                            );
+                          },
                         ),
-                        const SizedBox(height: 24),
-
-                        // Encouragements
-                        _EncouragementCard(stats: _stats!),
                         const SizedBox(height: 24),
 
                         // Bouton d'action

@@ -137,7 +137,7 @@ class _SignsListScreenState extends State<SignsListScreen> {
           ),
 
           // Liste des signes
-          Expanded(
+            Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _filteredSigns.isEmpty
@@ -146,12 +146,12 @@ class _SignsListScreenState extends State<SignsListScreen> {
                       )
                     : GridView.builder(
                         padding: const EdgeInsets.all(16),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount:
+                              MediaQuery.of(context).size.width < 360 ? 3 : 4,
                           crossAxisSpacing: 12,
                           mainAxisSpacing: 12,
-                          childAspectRatio: 0.8,
+                          childAspectRatio: 0.85,
                         ),
                         itemCount: _filteredSigns.length,
                         itemBuilder: (context, index) {
@@ -208,11 +208,14 @@ class _SignCard extends StatelessWidget {
           children: [
             Expanded(
               child: Center(
-                child: Text(
-                  sign.letter,
-                  style: const TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    sign.letter,
+                    style: const TextStyle(
+                      fontSize: 64,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
