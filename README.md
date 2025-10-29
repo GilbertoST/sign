@@ -55,22 +55,4 @@ http://localhost:8000/docs
 
 ## ⚠️ Note
 
-Les médias dans `assets/` sont des placeholders. Remplacez-les par de vraies vidéos LSF.
-
-## 🚀 Déploiement Production (Render)
-
-### Déploiement Express
-1. Uploader sur GitHub
-2. Créer un service sur [Render.com](https://render.com)
-3. Connecter le repo → Render détecte `render.yaml` automatiquement
-4. Attendre ~10 minutes
-5. Récupérer l'URL Render
-
-**Guide complet** : Voir [RENDER_QUICK_START.md](RENDER_QUICK_START.md)
-
-### Configuration après déploiement
-Modifier `lib/config/api_config.dart` :
-```dart
-static const bool isProduction = true;
-static const String renderUrl = 'https://votre-service.onrender.com';
-```
+Les vidéos utilisées proviennent de la chaîne YouTube Dicoplus LSF.
