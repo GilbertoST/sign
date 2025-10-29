@@ -1,0 +1,21 @@
+name: Keep Render Alive
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"  # toutes les 10 minutes
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Random jitter 0–50s
+        run: sleep $((RANDOM % 51))
+
+      - name: Ping Render /
+        run: |
+          curl -fsS --max-time 20 https://sign-4yrc.onrender.com/ || true
+
+      - name: Ping Render /docs
+        run: |
+          curl -fsS --max-time 20 https://sign-4yrc.onrender.com/docs || true
