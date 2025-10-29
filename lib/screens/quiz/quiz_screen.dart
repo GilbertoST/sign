@@ -220,6 +220,16 @@ class _QuizScreenState extends State<QuizScreen> {
         score: finalScore,
       );
 
+      // Mettre à jour le défi "premier quiz" si utilisateur connecté
+      if (!authProvider.isGuest) {
+        try {
+          await authProvider.apiService.updateChallengeProgressByType('first_quiz', increment: 1);
+          debugPrint('✅ Défi "first_quiz" mis à jour');
+        } catch (e) {
+          debugPrint('⚠️ Erreur mise à jour défi first_quiz: $e');
+        }
+      }
+
       // Bonus XP pour un quiz parfait (10/10)
       if (_score == _quizSigns.length && !authProvider.isGuest) {
         try {

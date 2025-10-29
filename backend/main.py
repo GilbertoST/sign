@@ -796,6 +796,26 @@ def update_challenge_progress(
     )
 
 
+@app.post("/api/challenges/by-type/{challenge_type}/progress", response_model=schemas.XPUpdateResponse)
+def update_challenge_progress_by_type(
+    challenge_type: str,
+    increment: int = 1,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Met à jour la progression d'un défi par son type"""
+    # Trouver le défi par type
+    challenge = db.query(models.Challenge).filter(
+        models.Challenge.challenge_type == challenge_type
+    ).first()
+    
+    if not challenge:
+        raise HTTPException(status_code=404, detail=f"Challenge type '{challenge_type}' not found")
+    
+    # Utiliser la fonction existante
+    return update_challenge_progress(challenge.id, increment, db, current_user)
+
+
 @app.post("/api/users/{user_id}/add-xp", response_model=schemas.XPUpdateResponse)
 def add_xp_to_user(
     user_id: int,

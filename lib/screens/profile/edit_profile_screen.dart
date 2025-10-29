@@ -148,37 +148,51 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           heroTag: 'pick_profile_image',
                           onPressed: () async {
                             try {
-                              // Demander permission pour accéder au stockage
-                              PermissionStatus permissionStatus;
+                              // Sur Android 13+, image_picker gère les permissions automatiquement
+                              // On ne demande permission que pour Android < 13 (storage)
                               if (Theme.of(context).platform == TargetPlatform.android) {
-                                // Pour Android 13+, utiliser photos, sinon storage
-                                final photosStatus = await Permission.photos.status;
-                                if (photosStatus.isGranted) {
-                                  permissionStatus = photosStatus;
-                                } else if (photosStatus.isDenied) {
-                                  permissionStatus = await Permission.photos.request();
-                                } else {
-                                  // Fallback sur storage pour versions antérieures
-                                  permissionStatus = await Permission.storage.request();
+                                // Pour Android < 13, demander permission storage
+                                // Pour Android 13+, image_picker le fait automatiquement
+                                final storageStatus = await Permission.storage.status;
+                                if (storageStatus.isDenied) {
+                                  final result = await Permission.storage.request();
+                                  if (result.isDenied || result.isPermanentlyDenied) {
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Permission nécessaire pour accéder aux fichiers'),
+                                          backgroundColor: Colors.orange,
+                                          action: SnackBarAction(
+                                            label: 'Paramètres',
+                                            onPressed: openAppSettings,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                    return;
+                                  }
                                 }
                               } else {
-                                permissionStatus = await Permission.photos.request();
-                              }
-                              
-                              if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Permission nécessaire pour accéder aux photos'),
-                                      backgroundColor: Colors.orange,
-                                      action: SnackBarAction(
-                                        label: 'Paramètres',
-                                        onPressed: openAppSettings,
-                                      ),
-                                    ),
-                                  );
+                                // Pour iOS, vérifier et demander si nécessaire
+                                final photosStatus = await Permission.photos.status;
+                                if (photosStatus.isDenied) {
+                                  final result = await Permission.photos.request();
+                                  if (result.isDenied || result.isPermanentlyDenied) {
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Permission nécessaire pour accéder aux photos'),
+                                          backgroundColor: Colors.orange,
+                                          action: SnackBarAction(
+                                            label: 'Paramètres',
+                                            onPressed: openAppSettings,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                    return;
+                                  }
                                 }
-                                return;
                               }
 
                               final picker = ImagePicker();

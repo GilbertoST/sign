@@ -457,6 +457,20 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> updateChallengeProgressByType(String challengeType, {int increment = 1}) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/challenges/by-type/$challengeType/progress?increment=$increment'),
+      headers: _getHeaders(includeAuth: true),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      final error = jsonDecode(response.body);
+      throw Exception(error['detail'] ?? 'Échec mise à jour progression');
+    }
+  }
+
   Future<Map<String, dynamic>> addXP(int userId, int xpAmount, {String actionType = 'general'}) async {
     final response = await http.post(
       Uri.parse('$baseUrl/api/users/$userId/add-xp?xp_amount=$xpAmount&action_type=$actionType'),
