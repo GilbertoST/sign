@@ -26,6 +26,15 @@ class AuthProvider with ChangeNotifier {
 
     try {
       final prefs = await SharedPreferences.getInstance();
+      // Log l'URL courante pour debug
+      debugPrint('API baseUrl: ${ApiConfig.baseUrl}');
+
+      // Forcer un reset de token au tout premier démarrage après installation
+      final didBootstrapOnce = prefs.getBool('did_bootstrap_once') ?? false;
+      if (!didBootstrapOnce) {
+        await prefs.remove('auth_token');
+        await prefs.setBool('did_bootstrap_once', true);
+      }
       // Invalider tout token si l'URL de l'API a changé (ex: localhost -> Render)
       final lastBaseUrl = prefs.getString('api_base_url');
       const currentBaseUrl = ApiConfig.baseUrl;

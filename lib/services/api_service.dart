@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import '../config/api_config.dart';
 import '../models/user.dart';
 import '../models/sign.dart';
 import '../models/progress.dart';
@@ -13,7 +15,7 @@ class ApiService {
   // Pour iOS Simulator: http://localhost:8000
   // Pour Android Emulator: http://10.0.2.2:8000
   // Pour device physique: http://VOTRE_IP:8000
-  static const String baseUrl = 'http://localhost:8000';
+  static const String baseUrl = ApiConfig.baseUrl;
 
   String? _token;
 
@@ -68,6 +70,7 @@ class ApiService {
   }
 
   Future<String> login(String username, String password) async {
+    debugPrint('POST $baseUrl/api/auth/login');
     final response = await http.post(
       Uri.parse('$baseUrl/api/auth/login'),
       headers: _getHeaders(),
@@ -77,6 +80,7 @@ class ApiService {
       }),
     );
 
+    debugPrint('login status: ${response.statusCode} body: ${response.body}');
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       _token = data['access_token'];
@@ -87,11 +91,13 @@ class ApiService {
   }
 
   Future<User> getCurrentUser() async {
+    debugPrint('GET $baseUrl/api/auth/me');
     final response = await http.get(
       Uri.parse('$baseUrl/api/auth/me'),
       headers: _getHeaders(includeAuth: true),
     );
 
+    debugPrint('me status: ${response.statusCode} body: ${response.body}');
     if (response.statusCode == 200) {
       return User.fromJson(jsonDecode(response.body));
     } else if (_handleAuthError(response)) {
@@ -271,11 +277,13 @@ class ApiService {
   // ==================== MODE INVITÉ ====================
 
   Future<String> loginAsGuest() async {
+    debugPrint('POST $baseUrl/api/auth/guest');
     final response = await http.post(
       Uri.parse('$baseUrl/api/auth/guest'),
       headers: _getHeaders(),
     );
 
+    debugPrint('guest status: ${response.statusCode} body: ${response.body}');
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       _token = data['access_token'];
