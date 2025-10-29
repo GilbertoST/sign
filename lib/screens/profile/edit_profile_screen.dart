@@ -47,7 +47,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       
-      final updatedUser = await authProvider.apiService.updateUserProfile(
+      await authProvider.apiService.updateUserProfile(
         authProvider.currentUser!.id,
         username: _usernameController.text.trim(),
         email: _emailController.text.trim(),
@@ -133,14 +133,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         FloatingActionButton.small(
                           heroTag: 'pick_profile_image',
                           onPressed: () async {
-                            final picker = ImagePicker();
-                            final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
-                            if (picked != null) {
-                              setState(() {
-                                _pickedImageFile = File(picked.path);
-                                // On stocke le chemin local dans l'URL pour persistance simple côté app
-                                _profilePictureUrlController.text = picked.path;
-                              });
+                            try {
+                              final picker = ImagePicker();
+                              final picked = await picker.pickImage(
+                                source: ImageSource.gallery,
+                                imageQuality: 85,
+                              );
+                              if (picked != null) {
+                                setState(() {
+                                  _pickedImageFile = File(picked.path);
+                                  // On stocke le chemin local dans l'URL pour persistance simple côté app
+                                  _profilePictureUrlController.text = picked.path;
+                                });
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Erreur: ${e.toString()}'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
                             }
                           },
                           child: const Icon(Icons.photo_library),
@@ -148,21 +162,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ],
                     ),
                     const SizedBox(height: 32),
-
-                    // URL/chemin photo de profil
-                    TextFormField(
-                      controller: _profilePictureUrlController,
-                      decoration: InputDecoration(
-                        labelText: 'URL/chemin de la photo (optionnel)',
-                        hintText: 'https://exemple.com/photo.jpg ou /storage/emulated/0/Pictures/p.jpg',
-                        prefixIcon: const Icon(Icons.image),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onChanged: (value) => setState(() {}),
-                    ),
-                    const SizedBox(height: 16),
 
                     // Username
                     TextFormField(

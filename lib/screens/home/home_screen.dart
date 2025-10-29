@@ -114,11 +114,21 @@ class HomeContentScreen extends StatelessWidget {
             const SizedBox(height: AppTheme.paddingLarge),
 
             // Actions rapides
-            Text(
-              'Actions rapides',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+            Builder(
+              builder: (context) {
+                final screenHeight = MediaQuery.of(context).size.height;
+                final screenWidth = MediaQuery.of(context).size.width;
+                final isSmallScreen = screenHeight < 700 || screenWidth < 360;
+                final titleSize = isSmallScreen ? 16.0 : 20.0;
+                
+                return Text(
+                  'Actions rapides',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: titleSize,
+                      ),
+                );
+              },
             ),
             const SizedBox(height: AppTheme.paddingMedium),
             GridView.count(
@@ -175,11 +185,21 @@ class HomeContentScreen extends StatelessWidget {
             const SizedBox(height: AppTheme.paddingLarge),
 
             // Conseils d'apprentissage
-            Text(
-              'Conseils d\'apprentissage',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+            Builder(
+              builder: (context) {
+                final screenHeight = MediaQuery.of(context).size.height;
+                final screenWidth = MediaQuery.of(context).size.width;
+                final isSmallScreen = screenHeight < 700 || screenWidth < 360;
+                final titleSize = isSmallScreen ? 16.0 : 20.0;
+                
+                return Text(
+                  'Conseils d\'apprentissage',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: titleSize,
+                      ),
+                );
+              },
             ),
             const SizedBox(height: AppTheme.paddingMedium),
             const _TipCard(
@@ -222,6 +242,18 @@ class _WelcomeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenHeight < 700 || screenWidth < 360;
+    
+    final greetingSize = isSmallScreen ? 12.0 : 14.0;
+    final usernameSize = isSmallScreen ? 18.0 : 24.0;
+    final badgeTextSize = isSmallScreen ? 11.0 : 13.0;
+    final messageSize = isSmallScreen ? 12.0 : 14.0;
+    final iconSize = isSmallScreen ? 16.0 : 24.0;
+    final badgeIconSize = isSmallScreen ? 14.0 : 18.0;
+    final padding = isSmallScreen ? AppTheme.paddingMedium : AppTheme.paddingLarge;
+
     return Container(
       decoration: BoxDecoration(
         gradient: AppTheme.primaryGradient,
@@ -235,119 +267,134 @@ class _WelcomeCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppTheme.paddingLarge),
+        padding: EdgeInsets.all(padding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(AppTheme.paddingSmall),
+                  padding: EdgeInsets.all(AppTheme.paddingSmall),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.waving_hand,
                     color: Colors.white,
-                    size: 24,
+                    size: iconSize,
                   ),
                 ),
-                const SizedBox(width: AppTheme.paddingSmall),
+                SizedBox(width: AppTheme.paddingSmall),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Bonjour,',
                         style: TextStyle(
                           color: Colors.white70,
-                          fontSize: 14,
+                          fontSize: greetingSize,
                         ),
                       ),
                       Text(
                         username,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
-                          fontSize: 24,
+                          fontSize: usernameSize,
                           fontWeight: FontWeight.bold,
                         ),
                         overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: AppTheme.paddingMedium),
+            SizedBox(height: AppTheme.paddingMedium),
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppTheme.paddingMedium,
-                    vertical: AppTheme.paddingSmall,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.star,
-                        color: Colors.amber,
-                        size: 18,
-                      ),
-                      const SizedBox(width: AppTheme.paddingSmall),
-                      Text(
-                        'Niveau $level',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                Flexible(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppTheme.paddingSmall,
+                      vertical: AppTheme.paddingSmall / 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                          size: badgeIconSize,
                         ),
-                      ),
-                    ],
+                        SizedBox(width: AppTheme.paddingSmall / 2),
+                        Flexible(
+                          child: Text(
+                            'Niveau $level',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: badgeTextSize,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppTheme.paddingMedium,
-                    vertical: AppTheme.paddingSmall,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.bolt,
-                        color: Colors.amber,
-                        size: 18,
-                      ),
-                      const SizedBox(width: AppTheme.paddingSmall),
-                      Text(
-                        '$xp XP',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                SizedBox(width: 8),
+                Flexible(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppTheme.paddingSmall,
+                      vertical: AppTheme.paddingSmall / 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.bolt,
+                          color: Colors.amber,
+                          size: badgeIconSize,
                         ),
-                      ),
-                    ],
+                        SizedBox(width: AppTheme.paddingSmall / 2),
+                        Flexible(
+                          child: Text(
+                            '$xp XP',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: badgeTextSize,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: AppTheme.paddingMedium),
-            const Text(
+            SizedBox(height: AppTheme.paddingMedium),
+            Text(
               'Continue ton apprentissage de l\'alphabet en langue des signes !',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 14,
+                fontSize: messageSize,
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -377,68 +424,70 @@ class _QuickActionCard extends StatefulWidget {
 
 class _QuickActionCardState extends State<_QuickActionCard>
     with SingleTickerProviderStateMixin {
-  bool _isPressed = false;
-
   @override
   Widget build(BuildContext context) {
-    return AnimatedScale(
-      scale: _isPressed ? 0.95 : 1.0,
-      duration: const Duration(milliseconds: 100),
-      curve: Curves.easeInOut,
-      child: GestureDetector(
-        onTapDown: (_) {
-          HapticFeedback.lightImpact();
-          setState(() => _isPressed = true);
-        },
-        onTapUp: (_) {
-          setState(() => _isPressed = false);
-          Future.delayed(const Duration(milliseconds: 100), widget.onTap);
-        },
-        onTapCancel: () => setState(() => _isPressed = false),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: widget.gradient,
-            borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-            boxShadow: AppTheme.cardShadow,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(AppTheme.paddingMedium),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
-                  ),
-                  child: Icon(
-                    widget.icon,
-                    size: 40,
-                    color: Colors.white,
-                  ),
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenHeight < 700 || screenWidth < 360;
+    
+    final iconSize = isSmallScreen ? 28.0 : 40.0;
+    final titleSize = isSmallScreen ? 13.0 : 16.0;
+    final subtitleSize = isSmallScreen ? 10.0 : 12.0;
+    final padding = isSmallScreen ? AppTheme.paddingSmall : AppTheme.paddingMedium;
+
+    return InkWell(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        widget.onTap();
+      },
+      borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: widget.gradient,
+          borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+          boxShadow: AppTheme.cardShadow,
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(padding),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: EdgeInsets.all(padding),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
                 ),
-                const SizedBox(height: AppTheme.paddingSmall),
-                Text(
-                  widget.title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
+                child: Icon(
+                  widget.icon,
+                  size: iconSize,
+                  color: Colors.white,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  widget.subtitle,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white.withOpacity(0.9),
-                  ),
-                  textAlign: TextAlign.center,
+              ),
+              SizedBox(height: AppTheme.paddingSmall),
+              Text(
+                widget.title,
+                style: TextStyle(
+                  fontSize: titleSize,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-              ],
-            ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 4),
+              Text(
+                widget.subtitle,
+                style: TextStyle(
+                  fontSize: subtitleSize,
+                  color: Colors.white.withOpacity(0.9),
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         ),
       ),

@@ -299,25 +299,39 @@ class _QuizScreenState extends State<QuizScreen> {
         appBar: AppBar(
           title: const Text('Choisir le mode de quiz'),
         ),
-        body: Padding(
+        body: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(
-                Icons.quiz,
-                size: 80,
-                color: Colors.blue,
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Sélectionnez votre niveau de défi',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
+              Builder(
+                builder: (context) {
+                  final screenHeight = MediaQuery.of(context).size.height;
+                  final screenWidth = MediaQuery.of(context).size.width;
+                  final isSmallScreen = screenHeight < 700 || screenWidth < 360;
+                  final iconSize = isSmallScreen ? 50.0 : 80.0;
+                  final titleSize = isSmallScreen ? 18.0 : 24.0;
+                  
+                  return Column(
+                    children: [
+                      Icon(
+                        Icons.quiz,
+                        size: iconSize,
+                        color: Colors.blue,
+                      ),
+                      SizedBox(height: isSmallScreen ? 16 : 24),
+                      Text(
+                        'Sélectionnez votre niveau de défi',
+                        style: TextStyle(
+                          fontSize: titleSize,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 48),
               
@@ -348,20 +362,37 @@ class _QuizScreenState extends State<QuizScreen> {
               ),
               const SizedBox(height: 32),
               
-              ElevatedButton(
-                onPressed: _startQuiz,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Commencer le Quiz',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+              Builder(
+                builder: (context) {
+                  final screenHeight = MediaQuery.of(context).size.height;
+                  final screenWidth = MediaQuery.of(context).size.width;
+                  final isSmallScreen = screenHeight < 700 || screenWidth < 360;
+                  final buttonFontSize = isSmallScreen ? 14.0 : 18.0;
+                  
+                  return SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _startQuiz,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                          vertical: isSmallScreen ? 12 : 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Commencer le Quiz',
+                        style: TextStyle(
+                          fontSize: buttonFontSize,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -449,13 +480,21 @@ class _QuizScreenState extends State<QuizScreen> {
             const SizedBox(height: 32),
 
             // Question
-            const Text(
-              'Quelle lettre représente ce signe ?',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
+            Builder(
+              builder: (context) {
+                final screenHeight = MediaQuery.of(context).size.height;
+                final screenWidth = MediaQuery.of(context).size.width;
+                final isSmallScreen = screenHeight < 700 || screenWidth < 360;
+                
+                return Text(
+                  'Quelle lettre représente ce signe ?',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 16.0 : 20.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                );
+              },
             ),
             const SizedBox(height: 32),
 
@@ -464,13 +503,21 @@ class _QuizScreenState extends State<QuizScreen> {
               flex: 2,
               child: Card(
                 child: Center(
-                  child: Text(
-                    currentSign.letter,
-                    style: const TextStyle(
-                      fontSize: 120,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
+                  child: Builder(
+                    builder: (context) {
+                      final screenHeight = MediaQuery.of(context).size.height;
+                      final screenWidth = MediaQuery.of(context).size.width;
+                      final isSmallScreen = screenHeight < 700 || screenWidth < 360;
+                      
+                      return Text(
+                        currentSign.letter,
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 80.0 : 120.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -558,10 +605,11 @@ class _QuizScreenState extends State<QuizScreen> {
   }) {
     final isSelected = _selectedMode == mode;
     
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         setState(() => _selectedMode = mode);
       },
+      borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),
@@ -581,10 +629,18 @@ class _QuizScreenState extends State<QuizScreen> {
                 color: color.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                size: 32,
-                color: color,
+              child: Builder(
+                builder: (context) {
+                  final screenHeight = MediaQuery.of(context).size.height;
+                  final screenWidth = MediaQuery.of(context).size.width;
+                  final isSmallScreen = screenHeight < 700 || screenWidth < 360;
+                  
+                  return Icon(
+                    icon,
+                    size: isSmallScreen ? 24.0 : 32.0,
+                    color: color,
+                  );
+                },
               ),
             ),
             const SizedBox(width: 16),
@@ -592,30 +648,51 @@ class _QuizScreenState extends State<QuizScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected ? color : Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[700],
-                    ),
+                  Builder(
+                    builder: (context) {
+                      final screenHeight = MediaQuery.of(context).size.height;
+                      final screenWidth = MediaQuery.of(context).size.width;
+                      final isSmallScreen = screenHeight < 700 || screenWidth < 360;
+                      
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: TextStyle(
+                              fontSize: isSmallScreen ? 14.0 : 18.0,
+                              fontWeight: FontWeight.bold,
+                              color: isSelected ? color : Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            description,
+                            style: TextStyle(
+                              fontSize: isSmallScreen ? 11.0 : 14.0,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),
             ),
             if (isSelected)
-              Icon(
-                Icons.check_circle,
-                color: color,
-                size: 28,
+              Builder(
+                builder: (context) {
+                  final screenHeight = MediaQuery.of(context).size.height;
+                  final screenWidth = MediaQuery.of(context).size.width;
+                  final isSmallScreen = screenHeight < 700 || screenWidth < 360;
+                  
+                  return Icon(
+                    Icons.check_circle,
+                    color: color,
+                    size: isSmallScreen ? 22.0 : 28.0,
+                  );
+                },
               ),
           ],
         ),
