@@ -167,6 +167,17 @@ class _QuizScreenState extends State<QuizScreen> {
         debugPrint('Erreur lors de l\'attribution XP: $e');
       }
     }
+    else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Mauvaise réponse. La bonne lettre était: ${currentSign.letter}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(milliseconds: 900),
+          ),
+        );
+      }
+    }
 
     // Enregistrer la tentative
     try {

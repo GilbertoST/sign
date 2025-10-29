@@ -34,11 +34,11 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } catch (e) {
       if (mounted) {
+        final msg = e.toString().contains('Incorrect username or password')
+            ? 'Aucun compte ne correspond à ces identifiants.'
+            : 'Erreur de connexion: ${e.toString()}';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur de connexion: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text(msg), backgroundColor: Colors.red),
         );
       }
     }
