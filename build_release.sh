@@ -59,3 +59,6 @@ echo "   [ ] Tester mode invité et création de compte"
 echo "   [ ] Vérifier miniatures YouTube"
 echo "   [ ] Tester quiz et défis"
 
+
+
+

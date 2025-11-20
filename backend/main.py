@@ -1,8 +1,10 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Query
+from fastapi import FastAPI, Depends, HTTPException, status, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import timedelta, datetime
 from typing import List
+from collections import defaultdict, deque
+import time
 import uuid
 import models
 import schemas
@@ -13,7 +15,8 @@ from auth import (
     create_access_token,
     get_current_user,
     get_user_by_username,
-    get_user_by_email
+    get_user_by_email,
+    validate_password_strength
 )
 from config import settings
 from utils.xp_calculator import (
@@ -27,10 +30,63 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Sign Language Learning API", version="1.0.0")
 
+MAX_LOGIN_ATTEMPTS = 5
+LOGIN_ATTEMPT_WINDOW = 15 * 60  # 15 minutes
+FAILED_LOGIN_ATTEMPTS = defaultdict(lambda: deque())
+
+
+def _login_attempt_key(request: Request, username: str) -> str:
+    client_ip = request.client.host if request.client else "unknown"
+    return f"{client_ip}:{username}"
+
+
+def _clean_attempts(queue: deque, now: float) -> None:
+    while queue and now - queue[0] > LOGIN_ATTEMPT_WINDOW:
+        queue.popleft()
+
+
+def _is_rate_limited(key: str, now: float) -> bool:
+    attempts = FAILED_LOGIN_ATTEMPTS[key]
+    _clean_attempts(attempts, now)
+    return len(attempts) >= MAX_LOGIN_ATTEMPTS
+
+
+def _record_failed_attempt(key: str, now: float) -> None:
+    attempts = FAILED_LOGIN_ATTEMPTS[key]
+    _clean_attempts(attempts, now)
+    attempts.append(now)
+
+
+def _reset_attempts(key: str) -> None:
+    if key in FAILED_LOGIN_ATTEMPTS:
+        FAILED_LOGIN_ATTEMPTS[key].clear()
+
+
+@app.middleware("http")
+async def security_headers_middleware(request: Request, call_next):
+    response = await call_next(request)
+    response.headers.setdefault(
+        "Strict-Transport-Security",
+        "max-age=63072000; includeSubDomains; preload",
+    )
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault(
+        "Permissions-Policy",
+        "geolocation=(), microphone=(), camera=(), fullscreen=(self)",
+    )
+    response.headers.setdefault(
+        "Content-Security-Policy",
+        "default-src 'none'; frame-ancestors 'none'; img-src 'self' data: https:; connect-src 'self';",
+    )
+    return response
+
+
 # Configuration CORS pour Flutter
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En production, spécifier les origines autorisées
+    allow_origins=settings.ALLOWED_ORIGINS or ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -57,12 +113,26 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
             detail="Email already registered"
         )
     
+    if not user.gdpr_consent or not user.data_processing_consent:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="RGPD consent is required to create an account"
+        )
+    
+    # Valider la complexité du mot de passe
+    validate_password_strength(user.password)
+
     # Créer le nouvel utilisateur
     hashed_password = get_password_hash(user.password)
+    consent_timestamp = datetime.utcnow()
     db_user = models.User(
         username=user.username,
         email=user.email,
-        password_hash=hashed_password
+        password_hash=hashed_password,
+        gdpr_consent=True,
+        gdpr_consent_at=consent_timestamp,
+        data_processing_consent=True,
+        data_processing_consent_at=consent_timestamp
     )
     db.add(db_user)
     db.commit()
@@ -71,16 +141,31 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 @app.post("/api/auth/login", response_model=schemas.Token)
-def login(user_credentials: schemas.UserLogin, db: Session = Depends(get_db)):
+def login(
+    user_credentials: schemas.UserLogin,
+    request: Request,
+    db: Session = Depends(get_db)
+):
     """Authentifie un utilisateur et retourne un token"""
+    attempt_key = _login_attempt_key(request, user_credentials.username)
+    now = time.time()
+    
+    if _is_rate_limited(attempt_key, now):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Trop de tentatives de connexion. Réessaie dans quelques minutes."
+        )
+    
     user = authenticate_user(db, user_credentials.username, user_credentials.password)
     if not user:
+        _record_failed_attempt(attempt_key, now)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
+    _reset_attempts(attempt_key)
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
@@ -112,7 +197,9 @@ def create_guest_account(db: Session = Depends(get_db)):
         password_hash=hashed_password,
         is_guest=True,
         guest_lessons_count=0,
-        guest_quiz_count=0
+        guest_quiz_count=0,
+        gdpr_consent=False,
+        data_processing_consent=False
     )
     db.add(db_user)
     db.commit()
@@ -202,11 +289,25 @@ async def convert_guest_to_user(
             detail="Email already registered"
         )
     
+    if not user_data.gdpr_consent or not user_data.data_processing_consent:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="RGPD consent is required to convert a guest account"
+        )
+    
+    # Valider la complexité du mot de passe
+    validate_password_strength(user_data.password)
+
     # Mettre à jour l'utilisateur
     current_user.username = user_data.username
     current_user.email = user_data.email
     current_user.password_hash = get_password_hash(user_data.password)
     current_user.is_guest = False
+    consent_timestamp = datetime.utcnow()
+    current_user.gdpr_consent = True
+    current_user.gdpr_consent_at = consent_timestamp
+    current_user.data_processing_consent = True
+    current_user.data_processing_consent_at = consent_timestamp
     
     db.commit()
     db.refresh(current_user)
@@ -534,6 +635,17 @@ async def update_user_profile(
     
     # Mettre à jour les champs
     update_data = profile_update.dict(exclude_unset=True)
+    
+    if "gdpr_consent" in update_data:
+        new_consent = update_data.pop("gdpr_consent")
+        current_user.gdpr_consent = new_consent
+        current_user.gdpr_consent_at = datetime.utcnow() if new_consent else None
+    
+    if "data_processing_consent" in update_data:
+        new_processing_consent = update_data.pop("data_processing_consent")
+        current_user.data_processing_consent = new_processing_consent
+        current_user.data_processing_consent_at = datetime.utcnow() if new_processing_consent else None
+    
     for key, value in update_data.items():
         setattr(current_user, key, value)
     
@@ -557,7 +669,9 @@ async def change_password(
     user = authenticate_user(db, current_user.username, password_change.current_password)
     if not user:
         raise HTTPException(status_code=400, detail="Mot de passe actuel incorrect")
-    
+
+    validate_password_strength(password_change.new_password)
+
     # Mettre à jour
     current_user.password_hash = get_password_hash(password_change.new_password)
     db.commit()
@@ -758,13 +872,13 @@ def update_challenge_progress(
     user_challenge.progress += increment
     
     # Vérifier si le défi est maintenant complété
-    if user_challenge.progress >= challenge.requirement:
-        # Auto-complétion du défi
+    if user_challenge.progress >= challenge.requirement and not user_challenge.completed:
+        # Auto-complétion du défi (vérifier que pas déjà complété pour éviter double attribution XP)
         user_challenge.completed = True
         user_challenge.completed_at = datetime.utcnow()
         user_challenge.xp_earned = challenge.xp_reward
         
-        # Ajouter l'XP
+        # Ajouter l'XP à l'utilisateur
         current_user.xp += challenge.xp_reward
         current_user.total_xp += challenge.xp_reward
         
@@ -811,6 +925,23 @@ def update_challenge_progress_by_type(
     
     if not challenge:
         raise HTTPException(status_code=404, detail=f"Challenge type '{challenge_type}' not found")
+    
+    # Vérifier/créer le UserChallenge s'il n'existe pas
+    user_challenge = db.query(models.UserChallenge).filter(
+        models.UserChallenge.user_id == current_user.id,
+        models.UserChallenge.challenge_id == challenge.id
+    ).first()
+    
+    if not user_challenge:
+        # Créer l'entrée UserChallenge si elle n'existe pas
+        user_challenge = models.UserChallenge(
+            user_id=current_user.id,
+            challenge_id=challenge.id,
+            progress=0,
+            completed=False
+        )
+        db.add(user_challenge)
+        db.flush()  # Pour obtenir l'ID sans commit
     
     # Utiliser la fonction existante
     return update_challenge_progress(challenge.id, increment, db, current_user)

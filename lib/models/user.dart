@@ -10,7 +10,9 @@ class User {
   final String? profilePictureUrl;
   final String? bio;
   final bool gdprConsent;
+  final DateTime? gdprConsentAt;
   final bool dataProcessingConsent;
+  final DateTime? dataProcessingConsentAt;
   final int xp;
   final int totalXp;
 
@@ -25,8 +27,10 @@ class User {
     this.guestQuizCount = 0,
     this.profilePictureUrl,
     this.bio,
-    this.gdprConsent = true,
-    this.dataProcessingConsent = true,
+    this.gdprConsent = false,
+    this.gdprConsentAt,
+    this.dataProcessingConsent = false,
+    this.dataProcessingConsentAt,
     this.xp = 0,
     this.totalXp = 0,
   });
@@ -44,7 +48,13 @@ class User {
       profilePictureUrl: json['profile_picture_url'],
       bio: json['bio'],
       gdprConsent: json['gdpr_consent'] ?? true,
+      gdprConsentAt: json['gdpr_consent_at'] != null
+          ? DateTime.tryParse(json['gdpr_consent_at'])
+          : null,
       dataProcessingConsent: json['data_processing_consent'] ?? true,
+      dataProcessingConsentAt: json['data_processing_consent_at'] != null
+          ? DateTime.tryParse(json['data_processing_consent_at'])
+          : null,
       xp: json['xp'] ?? 0,
       totalXp: json['total_xp'] ?? 0,
     );
@@ -63,7 +73,9 @@ class User {
       'profile_picture_url': profilePictureUrl,
       'bio': bio,
       'gdpr_consent': gdprConsent,
+      'gdpr_consent_at': gdprConsentAt?.toIso8601String(),
       'data_processing_consent': dataProcessingConsent,
+      'data_processing_consent_at': dataProcessingConsentAt?.toIso8601String(),
       'xp': xp,
       'total_xp': totalXp,
     };

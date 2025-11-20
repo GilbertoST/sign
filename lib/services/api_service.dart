@@ -50,8 +50,13 @@ class ApiService {
 
   // ==================== AUTHENTIFICATION ====================
 
-  Future<Map<String, dynamic>> register(
-      String username, String email, String password) async {
+  Future<Map<String, dynamic>> register({
+    required String username,
+    required String email,
+    required String password,
+    required bool gdprConsent,
+    required bool dataProcessingConsent,
+  }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/api/auth/register'),
       headers: _getHeaders(),
@@ -59,6 +64,8 @@ class ApiService {
         'username': username,
         'email': email,
         'password': password,
+        'gdpr_consent': gdprConsent,
+        'data_processing_consent': dataProcessingConsent,
       }),
     );
 
@@ -319,8 +326,13 @@ class ApiService {
     }
   }
 
-  Future<void> convertGuestToUser(
-      String username, String email, String password) async {
+  Future<void> convertGuestToUser({
+    required String username,
+    required String email,
+    required String password,
+    required bool gdprConsent,
+    required bool dataProcessingConsent,
+  }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/api/auth/convert-guest'),
       headers: _getHeaders(includeAuth: true),
@@ -328,6 +340,8 @@ class ApiService {
         'username': username,
         'email': email,
         'password': password,
+        'gdpr_consent': gdprConsent,
+        'data_processing_consent': dataProcessingConsent,
       }),
     );
 
@@ -345,12 +359,18 @@ class ApiService {
     String? email,
     String? bio,
     String? profilePictureUrl,
+    bool? gdprConsent,
+    bool? dataProcessingConsent,
   }) async {
     final body = <String, dynamic>{};
     if (username != null) body['username'] = username;
     if (email != null) body['email'] = email;
     if (bio != null) body['bio'] = bio;
     if (profilePictureUrl != null) body['profile_picture_url'] = profilePictureUrl;
+    if (gdprConsent != null) body['gdpr_consent'] = gdprConsent;
+    if (dataProcessingConsent != null) {
+      body['data_processing_consent'] = dataProcessingConsent;
+    }
 
     final response = await http.put(
       Uri.parse('$baseUrl/api/users/$userId'),

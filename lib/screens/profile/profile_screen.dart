@@ -208,6 +208,106 @@ class ProfileScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 16),
+                  SwitchListTile.adaptive(
+                    value: user.gdprConsent,
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Consentement RGPD'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          user.gdprConsent
+                              ? 'Actif depuis le ${_formatConsentDate(user.gdprConsentAt)}'
+                              : 'Consentement non donné',
+                        ),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: const Size(0, 0),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed: () => Navigator.of(context).pushNamed('/privacy-policy'),
+                          child: const Text('Lire la politique de confidentialité'),
+                        ),
+                      ],
+                    ),
+                    onChanged: (value) async {
+                      if (!value) {
+                        final confirm = await _confirmConsentWithdrawal(
+                          context,
+                          title: 'Retirer le consentement RGPD',
+                          message:
+                              'Sans consentement, certaines fonctionnalités seront désactivées. Continuer ?',
+                        );
+                        if (confirm != true) return;
+                      }
+                      await _updateConsent(
+                        context,
+                        authProvider,
+                        gdprConsent: value,
+                      );
+                    },
+                  ),
+                  SwitchListTile.adaptive(
+                    value: user.dataProcessingConsent,
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Traitement des données'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          user.dataProcessingConsent
+                              ? 'Autorisé depuis le ${_formatConsentDate(user.dataProcessingConsentAt)}'
+                              : 'Non autorisé',
+                        ),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: const Size(0, 0),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed: () => Navigator.of(context).pushNamed('/terms-of-service'),
+                          child: const Text('Lire les conditions d\'utilisation'),
+                        ),
+                      ],
+                    ),
+                    onChanged: (value) async {
+                      if (!value) {
+                        final confirm = await _confirmConsentWithdrawal(
+                          context,
+                          title: 'Refuser le traitement des données',
+                          message:
+                              'Refuser le traitement des données peut empêcher la sauvegarde de ta progression. Continuer ?',
+                        );
+                        if (confirm != true) return;
+                      }
+                      await _updateConsent(
+                        context,
+                        authProvider,
+                        dataProcessingConsent: value,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _SettingsTile(
+                    icon: Icons.privacy_tip,
+                    title: 'Politique de confidentialité',
+                    subtitle: 'Quelles données sont collectées et pourquoi',
+                    onTap: () => Navigator.of(context).pushNamed('/privacy-policy'),
+                  ),
+                  _SettingsTile(
+                    icon: Icons.description,
+                    title: 'Conditions d\'utilisation',
+                    subtitle: 'Règles du service et obligations',
+                    onTap: () => Navigator.of(context).pushNamed('/terms-of-service'),
+                  ),
+                  _SettingsTile(
+                    icon: Icons.gavel,
+                    title: 'Mentions légales',
+                    subtitle: 'Responsable de traitement et contact',
+                    onTap: () => Navigator.of(context).pushNamed('/legal-notice'),
+                  ),
+                  const SizedBox(height: 16),
                   _SettingsTile(
                     icon: Icons.download,
                     title: 'Télécharger mes données',
@@ -247,6 +347,72 @@ class ProfileScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  String _formatConsentDate(DateTime? timestamp) {
+    if (timestamp == null) {
+      return 'date non renseignée';
+    }
+    final formatter = DateFormat('dd/MM/yyyy à HH:mm');
+    return formatter.format(timestamp.toLocal());
+  }
+
+  Future<void> _updateConsent(
+    BuildContext context,
+    AuthProvider authProvider, {
+    bool? gdprConsent,
+    bool? dataProcessingConsent,
+  }) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await authProvider.apiService.updateUserProfile(
+        authProvider.currentUser!.id,
+        gdprConsent: gdprConsent,
+        dataProcessingConsent: dataProcessingConsent,
+      );
+      await authProvider.loadCurrentUser();
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('✅ Préférences RGPD mises à jour'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('❌ Erreur: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<bool?> _confirmConsentWithdrawal(
+    BuildContext context, {
+    required String title,
+    required String message,
+  }) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Continuer'),
+          ),
+        ],
       ),
     );
   }

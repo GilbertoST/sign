@@ -17,6 +17,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _confirmPasswordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  bool _acceptPrivacyPolicy = false;
+  bool _acceptDataProcessing = false;
 
   @override
   void dispose() {
@@ -40,13 +42,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
+    if (!_acceptPrivacyPolicy || !_acceptDataProcessing) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Tu dois accepter la politique de confidentialité et le traitement de tes données pour créer un compte.',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     try {
       await authProvider.register(
-        _usernameController.text.trim(),
-        _emailController.text.trim(),
-        _passwordController.text,
+        username: _usernameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        gdprConsent: _acceptPrivacyPolicy,
+        dataProcessingConsent: _acceptDataProcessing,
       );
       
       if (mounted) {
@@ -207,6 +223,94 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       }
                       return null;
                     },
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Consentements RGPD
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Checkbox(
+                        value: _acceptPrivacyPolicy,
+                        onChanged: (value) {
+                          setState(() {
+                            _acceptPrivacyPolicy = value ?? false;
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Wrap(
+                          spacing: 4,
+                          runSpacing: 4,
+                          children: [
+                            const Text(
+                              'J\'ai lu et j\'accepte la ',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                minimumSize: const Size(0, 0),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).pushNamed('/privacy-policy');
+                              },
+                              child: const Text(
+                                'Politique de confidentialité',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Checkbox(
+                        value: _acceptDataProcessing,
+                        onChanged: (value) {
+                          setState(() {
+                            _acceptDataProcessing = value ?? false;
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Wrap(
+                          spacing: 4,
+                          runSpacing: 4,
+                          children: [
+                            const Text(
+                              'J\'accepte le traitement de mes données conformément aux ',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                minimumSize: const Size(0, 0),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).pushNamed('/terms-of-service');
+                              },
+                              child: const Text(
+                                'Conditions d’utilisation',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                            ),
+                            const Text(
+                              '.',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 24),
 

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
 import '../models/user.dart';
@@ -6,6 +7,11 @@ import 'api_service.dart';
 
 class AuthProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
+  static const _tokenKey = 'auth_token';
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+  );
   User? _currentUser;
   bool _isAuthenticated = false;
   bool _isLoading = false;
@@ -32,17 +38,17 @@ class AuthProvider with ChangeNotifier {
       // Forcer un reset de token au tout premier démarrage après installation
       final didBootstrapOnce = prefs.getBool('did_bootstrap_once') ?? false;
       if (!didBootstrapOnce) {
-        await prefs.remove('auth_token');
+        await _secureStorage.delete(key: _tokenKey);
         await prefs.setBool('did_bootstrap_once', true);
       }
       // Invalider tout token si l'URL de l'API a changé (ex: localhost -> Render)
       final lastBaseUrl = prefs.getString('api_base_url');
       const currentBaseUrl = ApiConfig.baseUrl;
       if (lastBaseUrl != currentBaseUrl) {
-        await prefs.remove('auth_token');
+        await _secureStorage.delete(key: _tokenKey);
         await prefs.setString('api_base_url', currentBaseUrl);
       }
-      final token = prefs.getString('auth_token');
+      final token = await _secureStorage.read(key: _tokenKey);
 
       if (token != null) {
         _apiService.setToken(token);
@@ -65,8 +71,8 @@ class AuthProvider with ChangeNotifier {
     try {
       final token = await _apiService.login(username, password);
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', token);
       await prefs.setString('api_base_url', ApiConfig.baseUrl);
+      await _secureStorage.write(key: _tokenKey, value: token);
 
       _currentUser = await _apiService.getCurrentUser();
       _isAuthenticated = true;
@@ -78,12 +84,24 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> register(String username, String email, String password) async {
+  Future<void> register({
+    required String username,
+    required String email,
+    required String password,
+    required bool gdprConsent,
+    required bool dataProcessingConsent,
+  }) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      await _apiService.register(username, email, password);
+      await _apiService.register(
+        username: username,
+        email: email,
+        password: password,
+        gdprConsent: gdprConsent,
+        dataProcessingConsent: dataProcessingConsent,
+      );
       // Après l'inscription, connecter automatiquement
       await login(username, password);
     } catch (e) {
@@ -95,7 +113,8 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('auth_token');
+    await prefs.remove('api_base_url');
+    await _secureStorage.delete(key: _tokenKey);
 
     _apiService.clearToken();
     _currentUser = null;
@@ -123,8 +142,8 @@ class AuthProvider with ChangeNotifier {
     try {
       final token = await _apiService.loginAsGuest();
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', token);
       await prefs.setString('api_base_url', ApiConfig.baseUrl);
+      await _secureStorage.write(key: _tokenKey, value: token);
 
       _currentUser = await _apiService.getCurrentUser();
       _isAuthenticated = true;
@@ -164,15 +183,26 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> convertGuestToUser(
-      String username, String email, String password) async {
+  Future<void> convertGuestToUser({
+    required String username,
+    required String email,
+    required String password,
+    required bool gdprConsent,
+    required bool dataProcessingConsent,
+  }) async {
     if (!isGuest) throw Exception('Pas un compte invité');
 
     _isLoading = true;
     notifyListeners();
 
     try {
-      await _apiService.convertGuestToUser(username, email, password);
+      await _apiService.convertGuestToUser(
+        username: username,
+        email: email,
+        password: password,
+        gdprConsent: gdprConsent,
+        dataProcessingConsent: dataProcessingConsent,
+      );
       _currentUser = await _apiService.getCurrentUser();
     } catch (e) {
       rethrow;

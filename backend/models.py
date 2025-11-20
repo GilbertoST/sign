@@ -22,8 +22,10 @@ class User(Base):
     bio = Column(String, nullable=True)
     
     # Champs RGPD
-    gdpr_consent = Column(Boolean, default=True)
-    data_processing_consent = Column(Boolean, default=True)
+    gdpr_consent = Column(Boolean, default=False, nullable=False)
+    gdpr_consent_at = Column(DateTime, nullable=True)
+    data_processing_consent = Column(Boolean, default=False, nullable=False)
+    data_processing_consent_at = Column(DateTime, nullable=True)
     
     # Champs XP et défis
     xp = Column(Integer, default=0)

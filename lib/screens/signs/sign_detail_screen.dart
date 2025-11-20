@@ -370,6 +370,29 @@ class _SignDetailScreenState extends State<SignDetailScreen> {
         1,
       );
 
+      // Mettre à jour le défi "Alphabet complet" (1 lettre apprise)
+      if (!authProvider.isGuest) {
+        try {
+          final challengeResult = await authProvider.apiService.updateChallengeProgressByType('alphabet', increment: 1);
+          // Si le défi est complété, les XP sont automatiquement ajoutés par le backend
+          if (challengeResult['xp_added'] != null && challengeResult['xp_added'] > 0) {
+            debugPrint('✅ Défi "alphabet" complété ! +${challengeResult['xp_added']} XP');
+            await authProvider.loadCurrentUser();
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('🎉 Défi Alphabet complété ! +${challengeResult['xp_added']} XP !'),
+                  backgroundColor: Colors.purple,
+                  duration: const Duration(seconds: 3),
+                ),
+              );
+            }
+          }
+        } catch (e) {
+          debugPrint('⚠️ Erreur mise à jour défi alphabet: $e');
+        }
+      }
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

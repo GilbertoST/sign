@@ -11,6 +11,8 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+    gdpr_consent: bool
+    data_processing_consent: bool
 
 
 class UserLogin(BaseModel):
@@ -27,8 +29,10 @@ class UserResponse(UserBase):
     guest_quiz_count: int = 0
     profile_picture_url: Optional[str] = None
     bio: Optional[str] = None
-    gdpr_consent: bool = True
-    data_processing_consent: bool = True
+    gdpr_consent: bool = False
+    gdpr_consent_at: Optional[datetime] = None
+    data_processing_consent: bool = False
+    data_processing_consent_at: Optional[datetime] = None
     xp: int = 0
     total_xp: int = 0
     
@@ -150,6 +154,8 @@ class GuestConversion(BaseModel):
     username: str
     email: EmailStr
     password: str
+    gdpr_consent: bool
+    data_processing_consent: bool
 
 
 # Schéma pour mise à jour du profil
@@ -158,6 +164,8 @@ class UserProfileUpdate(BaseModel):
     email: Optional[EmailStr] = None
     bio: Optional[str] = None
     profile_picture_url: Optional[str] = None
+    gdpr_consent: Optional[bool] = None
+    data_processing_consent: Optional[bool] = None
 
 
 # Schéma pour changement de mot de passe

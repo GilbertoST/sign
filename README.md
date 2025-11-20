@@ -45,6 +45,27 @@ sign/
 
 http://localhost:8000/docs
 
+## 🔐 Configuration sécurité & RGPD
+
+1. Crée un fichier `backend/.env` avec :
+   ```
+   SECRET_KEY="change-me-with-a-64-bytes-secret"
+   ALLOWED_ORIGINS=["http://localhost:5173","https://ton-domaine.com"]
+   ```
+2. Exécute les migrations RGPD :
+   ```
+   python backend/migrate_add_profile_fields.py
+   python backend/migrate_update_consent_fields.py
+   ```
+3. Consulte les documents légaux :
+   - `PRIVACY_POLICY.md`
+   - `TERMS_OF_SERVICE.md`
+   - `LEGAL_NOTICE.md`
+4. Politique de mot de passe : longueur ≥ 8 + majuscule + minuscule + chiffre + caractère spécial.
+5. Rate limiting : 5 tentatives de connexion / 15 minutes par IP/utilisateur (HTTP 429 en cas d'abus).
+6. Headers de sécurité (HSTS, CSP, etc.) injectés côté API — activer HTTPS en production pour en profiter.
+7. Stockage local : le token JWT est stocké avec `flutter_secure_storage` (Keychain / EncryptedSharedPrefs).
+
 ## 🎨 Fonctionnalités UI/UX
 
 - ✅ **Thème unifié** avec constantes centralisées

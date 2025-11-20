@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional
+import re
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
@@ -13,10 +14,36 @@ import schemas
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
 
+PASSWORD_POLICY_PATTERN = re.compile(
+    r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$"
+)
+
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Vérifie si le mot de passe correspond au hash"""
     return pwd_context.verify(plain_password, hashed_password)
+
+
+def validate_password_strength(password: str) -> None:
+    """
+    Valide la complexité d'un mot de passe selon la politique OWASP:
+    - minimum 8 caractères
+    - au moins une minuscule, une majuscule, un chiffre, un caractère spécial
+    - pas d'espaces
+    """
+    if " " in password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Le mot de passe ne doit pas contenir d'espace.",
+        )
+    if not PASSWORD_POLICY_PATTERN.match(password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "Le mot de passe doit contenir au minimum 8 caractères avec au moins "
+                "une majuscule, une minuscule, un chiffre et un caractère spécial."
+            ),
+        )
 
 
 def get_password_hash(password: str) -> str:

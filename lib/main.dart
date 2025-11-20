@@ -12,6 +12,9 @@ import 'screens/quiz/quiz_screen.dart';
 import 'screens/quiz/quiz_results_screen.dart';
 import 'screens/profile/edit_profile_screen.dart';
 import 'screens/challenges/challenges_screen.dart';
+import 'screens/legal/privacy_policy_screen.dart';
+import 'screens/legal/terms_of_service_screen.dart';
+import 'screens/legal/legal_notice_screen.dart';
 import 'models/sign.dart';
 
 void main() {
@@ -83,6 +86,18 @@ class MyApp extends StatelessWidget {
                 case '/challenges':
                   return MaterialPageRoute(
                     builder: (_) => const ChallengesScreen(),
+                  );
+                case '/privacy-policy':
+                  return MaterialPageRoute(
+                    builder: (_) => const PrivacyPolicyScreen(),
+                  );
+                case '/terms-of-service':
+                  return MaterialPageRoute(
+                    builder: (_) => const TermsOfServiceScreen(),
+                  );
+                case '/legal-notice':
+                  return MaterialPageRoute(
+                    builder: (_) => const LegalNoticeScreen(),
                   );
                 default:
                   return null;

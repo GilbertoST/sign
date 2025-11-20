@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/challenge.dart';
 import '../../services/auth_provider.dart';
-import '../../theme/app_theme.dart';
 
 class ChallengesScreen extends StatefulWidget {
   const ChallengesScreen({super.key});
@@ -316,6 +315,9 @@ class _ChallengeCard extends StatelessWidget {
     }
   }
 }
+
+
+
 
 
 

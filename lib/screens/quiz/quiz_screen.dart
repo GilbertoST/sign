@@ -223,8 +223,21 @@ class _QuizScreenState extends State<QuizScreen> {
       // Mettre à jour le défi "premier quiz" si utilisateur connecté
       if (!authProvider.isGuest) {
         try {
-          await authProvider.apiService.updateChallengeProgressByType('first_quiz', increment: 1);
-          debugPrint('✅ Défi "first_quiz" mis à jour');
+          final challengeResult = await authProvider.apiService.updateChallengeProgressByType('first_quiz', increment: 1);
+          // Si le défi est complété, les XP sont automatiquement ajoutés par le backend
+          if (challengeResult['xp_added'] != null && challengeResult['xp_added'] > 0) {
+            debugPrint('✅ Défi "first_quiz" complété ! +${challengeResult['xp_added']} XP');
+            await authProvider.loadCurrentUser();
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('🎉 Défi Premier pas complété ! +${challengeResult['xp_added']} XP !'),
+                  backgroundColor: Colors.yellow[700],
+                  duration: const Duration(seconds: 3),
+                ),
+              );
+            }
+          }
         } catch (e) {
           debugPrint('⚠️ Erreur mise à jour défi first_quiz: $e');
         }
@@ -238,6 +251,19 @@ class _QuizScreenState extends State<QuizScreen> {
             50, // +50 XP bonus pour quiz parfait
             actionType: 'quiz_perfect',
           );
+          
+          // Mettre à jour le défi "Quiz Master" (10 quiz parfaits)
+          try {
+            final challengeResult = await authProvider.apiService.updateChallengeProgressByType('quiz_perfect', increment: 1);
+            // Si le défi est complété, les XP sont déjà ajoutés automatiquement par le backend
+            if (challengeResult['xp_added'] != null && challengeResult['xp_added'] > 0) {
+              debugPrint('✅ Défi "quiz_perfect" complété ! +${challengeResult['xp_added']} XP');
+              // Recharger l'utilisateur pour avoir les derniers XP
+              await authProvider.loadCurrentUser();
+            }
+          } catch (e) {
+            debugPrint('⚠️ Erreur mise à jour défi quiz_perfect: $e');
+          }
           
           // Mettre à jour l'utilisateur
           await authProvider.loadCurrentUser();
