@@ -1,9 +1,11 @@
 name: Keep Render Alive
 
 on:
-  schedule:
-    - cron: "*/10 * * * *"  # toutes les 10 minutes
+  # DÉSACTIVÉ : Le workflow ne s'exécute plus automatiquement
+  # schedule:
+  #   - cron: "*/10 * * * *"  # toutes les 10 minutes
   workflow_dispatch:
+  # Pour réactiver, décommentez la section schedule ci-dessus
 
 jobs:
   ping:
