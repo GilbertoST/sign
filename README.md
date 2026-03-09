@@ -41,10 +41,6 @@ sign/
 - **Frontend**: Flutter
 - **Auth**: JWT
 
-## 📚 API Documentation
-
-http://localhost:8000/docs
-
 ## 🔐 Configuration sécurité & RGPD
 
 1. Crée un fichier `backend/.env` avec :
