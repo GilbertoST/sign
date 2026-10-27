@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../models/sign.dart';
 import '../../services/auth_provider.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/app_surface.dart';
 
 class SignDetailScreen extends StatefulWidget {
   final Sign sign;
@@ -42,13 +44,13 @@ class _SignDetailScreenState extends State<SignDetailScreen> {
 
   Future<void> _toggleFavorite() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
+
     if (authProvider.isGuest) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Connectez-vous pour ajouter aux favoris'),
-            backgroundColor: Colors.orange,
+            backgroundColor: AppTheme.secondaryColor,
           ),
         );
       }
@@ -65,7 +67,7 @@ class _SignDetailScreenState extends State<SignDetailScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${widget.sign.letter} retiré des favoris'),
-              backgroundColor: Colors.grey,
+              backgroundColor: AppTheme.muted,
             ),
           );
         }
@@ -76,7 +78,7 @@ class _SignDetailScreenState extends State<SignDetailScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${widget.sign.letter} ajouté aux favoris !'),
-              backgroundColor: Colors.green,
+              backgroundColor: AppTheme.successColor,
             ),
           );
         }
@@ -86,7 +88,7 @@ class _SignDetailScreenState extends State<SignDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: ${e.toString()}'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.errorColor,
           ),
         );
       }
@@ -100,6 +102,11 @@ class _SignDetailScreenState extends State<SignDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final difficultyColor = AppTheme.difficultyColor(widget.sign.difficulty);
+    final hasVideo =
+        widget.sign.videoPath != null && widget.sign.videoPath!.isNotEmpty;
+    final videoHeight =
+        (MediaQuery.sizeOf(context).height * 0.40).clamp(240.0, 420.0);
 
     return Scaffold(
       appBar: AppBar(
@@ -117,197 +124,143 @@ class _SignDetailScreenState extends State<SignDetailScreen> {
           else
             IconButton(
               icon: Icon(_isFavorite ? Icons.bookmark : Icons.bookmark_border),
-              color: _isFavorite ? Colors.amber : null,
+              color: _isFavorite ? AppTheme.amber : null,
               onPressed: _toggleFavorite,
             ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Section vidéo YouTube avec miniature réelle
-            if (widget.sign.videoPath != null && widget.sign.videoPath!.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: GestureDetector(
-                  onTap: () => _openYouTubeVideo(context),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      height: 220,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          // Miniature YouTube
-                          widget.sign.thumbnailUrl != null && widget.sign.thumbnailUrl!.isNotEmpty
-                              ? Image.network(
-                                  widget.sign.thumbnailUrl!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    // Fallback si l'image ne charge pas
-                                    return Container(
-                                      color: Colors.red[800],
-                                      child: Icon(
-                                        Icons.play_circle_filled,
-                                        size: 80,
-                                        color: Colors.white,
-                                      ),
-                                    );
-                                  },
-                                  loadingBuilder: (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return Center(
-                                      child: CircularProgressIndicator(
-                                        value: loadingProgress.expectedTotalBytes != null
-                                            ? loadingProgress.cumulativeBytesLoaded /
-                                                loadingProgress.expectedTotalBytes!
-                                            : null,
-                                      ),
-                                    );
-                                  },
-                                )
-                              : Container(
-                                  color: Colors.red[800],
-                                  child: Icon(
-                                    Icons.play_circle_filled,
-                                    size: 80,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                          // Icône play centrale
-                          Center(
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withValues(alpha: 0.6),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.play_arrow,
-                                size: 60,
-                                color: Colors.white,
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(
+                AppTheme.page,
+                AppTheme.spaceXs,
+                AppTheme.page,
+                AppTheme.spaceLg,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (hasVideo) ...[
+                    _VideoHero(
+                      height: videoHeight,
+                      thumbnailUrl: widget.sign.thumbnailUrl,
+                      onTap: () => _openYouTubeVideo(context),
+                    ),
+                    const SizedBox(height: AppTheme.spaceMd),
+                  ],
+                  AppSurface(
+                    padding: const EdgeInsets.all(AppTheme.page),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              widget.sign.letter,
+                              style: Theme.of(context).textTheme.displaySmall,
+                            ),
+                            const SizedBox(width: AppTheme.spaceSm),
+                            Expanded(
+                              child: Text(
+                                'Lettre ${widget.sign.letter}',
+                                style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ),
+                            Chip(
+                              label: Text(widget.sign.difficultyLabel),
+                              backgroundColor: difficultyColor.withValues(alpha: 0.12),
+                              side: BorderSide(
+                                color: difficultyColor.withValues(alpha: 0.28),
+                              ),
+                              labelStyle: TextStyle(
+                                color: difficultyColor,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (widget.sign.description != null) ...[
+                          const SizedBox(height: AppTheme.spaceMd),
+                          Text(
+                            'Description',
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          const SizedBox(height: AppTheme.spaceXs),
+                          Text(
+                            widget.sign.description!,
+                            style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-            // Informations sur le signe
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Lettre et difficulté
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Lettre ${widget.sign.letter}',
-                        style:
-                            Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                      ),
-                      Chip(
-                        label: Text(widget.sign.difficultyLabel),
-                        backgroundColor: _getDifficultyColor().withValues(alpha: 0.2),
-                        labelStyle: TextStyle(
-                          color: _getDifficultyColor(),
-                          fontWeight: FontWeight.bold,
+                        const SizedBox(height: AppTheme.spaceMd),
+                        Text(
+                          'Conseils pratiques',
+                          style: Theme.of(context).textTheme.titleSmall,
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Description
-                  if (widget.sign.description != null) ...[
-                    Text(
-                      'Description',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      widget.sign.description!,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-
-                  // Conseils pratiques
-                  Text(
-                    'Conseils pratiques',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  const _TipItem(
-                    icon: Icons.visibility,
-                    text: 'Regardez attentivement la position des doigts',
-                  ),
-                  const _TipItem(
-                    icon: Icons.repeat,
-                    text: 'Pratiquez plusieurs fois le mouvement',
-                  ),
-                  const _TipItem(
-                    icon: Icons.videocam,
-                    text: 'Enregistrez-vous pour comparer',
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Boutons d'action
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/quiz',
-                              arguments: widget.sign,
-                            );
-                          },
-                          icon: const Icon(Icons.quiz),
-                          label: const Text('Pratiquer'),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
+                        const SizedBox(height: AppTheme.spaceXs),
+                        const _TipItem(
+                          icon: Icons.visibility_outlined,
+                          text: 'Regardez attentivement la position des doigts',
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            _markAsLearned(context, authProvider);
-                          },
-                          icon: const Icon(Icons.check_circle_outline),
-                          label: const Text('Appris'),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
+                        const _TipItem(
+                          icon: Icons.repeat,
+                          text: 'Pratiquez plusieurs fois le mouvement',
                         ),
-                      ),
-                    ],
+                        const _TipItem(
+                          icon: Icons.videocam_outlined,
+                          text: 'Enregistrez-vous pour comparer',
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              border: Border(top: BorderSide(color: AppTheme.line(context))),
+            ),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppTheme.page,
+                  AppTheme.spaceSm,
+                  AppTheme.page,
+                  AppTheme.spaceSm,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    FilledButton.icon(
+                      onPressed: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/quiz',
+                          arguments: widget.sign,
+                        );
+                      },
+                      icon: const Icon(Icons.quiz_outlined),
+                      label: const Text('Pratiquer'),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        _markAsLearned(context, authProvider);
+                      },
+                      icon: const Icon(Icons.check_circle_outline, size: 18),
+                      label: const Text('Appris'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -316,44 +269,27 @@ class _SignDetailScreenState extends State<SignDetailScreen> {
     try {
       final raw = widget.sign.videoPath!.trim();
       final url = Uri.parse(raw.startsWith('http') ? raw : 'https://$raw');
-      // Essaye d'abord avec l'application/ navigateur externe
       if (await canLaunchUrl(url) &&
           await launchUrl(url, mode: LaunchMode.externalApplication)) {
         return;
       }
-      // Fallback WebView interne
       if (!await launchUrl(url, mode: LaunchMode.inAppBrowserView)) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Impossible d\'ouvrir la vidéo'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur: $e'),
-            backgroundColor: Colors.red,
+          const SnackBar(
+            content: Text('Impossible d\'ouvrir la vidéo'),
+            backgroundColor: AppTheme.errorColor,
           ),
         );
       }
-    }
-  }
-
-  Color _getDifficultyColor() {
-    switch (widget.sign.difficulty) {
-      case 1:
-        return Colors.green;
-      case 2:
-        return Colors.orange;
-      case 3:
-        return Colors.red;
-      default:
-        return Colors.grey;
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur: $e'),
+          backgroundColor: AppTheme.errorColor,
+        ),
+      );
     }
   }
 
@@ -361,8 +297,7 @@ class _SignDetailScreenState extends State<SignDetailScreen> {
       BuildContext context, AuthProvider authProvider) async {
     try {
       final userId = authProvider.currentUser!.id;
-      
-      // Essayer de créer ou mettre à jour la progression
+
       await authProvider.apiService.createProgress(
         userId,
         widget.sign.id,
@@ -370,47 +305,145 @@ class _SignDetailScreenState extends State<SignDetailScreen> {
         1,
       );
 
-      // Mettre à jour le défi "Alphabet complet" (1 lettre apprise)
       if (!authProvider.isGuest) {
         try {
-          final challengeResult = await authProvider.apiService.updateChallengeProgressByType('alphabet', increment: 1);
-          // Si le défi est complété, les XP sont automatiquement ajoutés par le backend
-          if (challengeResult['xp_added'] != null && challengeResult['xp_added'] > 0) {
-            debugPrint('✅ Défi "alphabet" complété ! +${challengeResult['xp_added']} XP');
+          final challengeResult = await authProvider.apiService
+              .updateChallengeProgressByType('alphabet', increment: 1);
+          if (challengeResult['xp_added'] != null &&
+              challengeResult['xp_added'] > 0) {
+            debugPrint(
+                '✅ Défi "alphabet" complété ! +${challengeResult['xp_added']} XP');
             await authProvider.loadCurrentUser();
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('🎉 Défi Alphabet complété ! +${challengeResult['xp_added']} XP !'),
-                  backgroundColor: Colors.purple,
-                  duration: const Duration(seconds: 3),
-                ),
-              );
-            }
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                    '🎉 Défi Alphabet complété ! +${challengeResult['xp_added']} XP !'),
+                backgroundColor: AppTheme.purple,
+                duration: const Duration(seconds: 3),
+              ),
+            );
           }
         } catch (e) {
           debugPrint('⚠️ Erreur mise à jour défi alphabet: $e');
         }
       }
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${widget.sign.letter} marqué comme appris !'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${widget.sign.letter} marqué comme appris !'),
+          backgroundColor: AppTheme.successColor,
+        ),
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur: $e'),
+          backgroundColor: AppTheme.errorColor,
+        ),
+      );
     }
+  }
+}
+
+class _VideoHero extends StatelessWidget {
+  final double height;
+  final String? thumbnailUrl;
+  final VoidCallback onTap;
+
+  const _VideoHero({
+    required this.height,
+    required this.thumbnailUrl,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final hasThumb = thumbnailUrl != null && thumbnailUrl!.isNotEmpty;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+        boxShadow: AppTheme.shadow(context),
+      ),
+      child: Material(
+        color: const Color(0xFF1E3A8A),
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          child: SizedBox(
+            height: height,
+            width: double.infinity,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (hasThumb)
+                  Image.network(
+                    thumbnailUrl!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const _VideoFallback();
+                    },
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                              : null,
+                        ),
+                      );
+                    },
+                  )
+                else
+                  const _VideoFallback(),
+                Center(
+                  child: Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.18),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.play_arrow_rounded,
+                      size: 42,
+                      color: AppTheme.primaryColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _VideoFallback extends StatelessWidget {
+  const _VideoFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    return const DecoratedBox(
+      decoration: BoxDecoration(gradient: AppTheme.primaryGradient),
+      child: SizedBox.expand(),
+    );
   }
 }
 
@@ -426,17 +459,16 @@ class _TipItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: Colors.blue,
-          ),
-          const SizedBox(width: 12),
+          Icon(icon, size: 18, color: AppTheme.primaryColor),
+          const SizedBox(width: AppTheme.spaceSm),
           Expanded(
-            child: Text(text),
+            child: Text(
+              text,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           ),
         ],
       ),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../theme/app_theme.dart';
 import '../../services/auth_provider.dart';
 import '../../utils/page_transitions.dart';
+import '../../widgets/app_surface.dart';
 import '../signs/signs_list_screen.dart';
 import '../progress/progress_dashboard_screen.dart';
 import '../profile/profile_screen.dart';
@@ -39,15 +40,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _screens[_selectedIndex],
-      bottomNavigationBar: Container(
+      bottomNavigationBar: DecoratedBox(
         decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
+          border: Border(top: BorderSide(color: AppTheme.line(context))),
         ),
         child: NavigationBar(
           selectedIndex: _selectedIndex,
@@ -87,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class HomeContentScreen extends StatelessWidget {
   final Function(int) onNavigateToTab;
-  
+
   const HomeContentScreen({super.key, required this.onNavigateToTab});
 
   @override
@@ -101,42 +96,39 @@ class HomeContentScreen extends StatelessWidget {
         elevation: 0,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppTheme.paddingMedium),
+        padding: const EdgeInsets.all(AppTheme.page),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Section de bienvenue avec gradient
             _WelcomeCard(
-              username: user?.username ?? 'Utilisateur', 
+              username: user?.username ?? 'Utilisateur',
               level: user?.level ?? 1,
               xp: user?.xp ?? 0,
             ),
-            const SizedBox(height: AppTheme.paddingLarge),
-
-            // Actions rapides
+            const SizedBox(height: AppTheme.spaceLg),
             Builder(
               builder: (context) {
                 final screenHeight = MediaQuery.of(context).size.height;
                 final screenWidth = MediaQuery.of(context).size.width;
                 final isSmallScreen = screenHeight < 700 || screenWidth < 360;
                 final titleSize = isSmallScreen ? 16.0 : 20.0;
-                
+
                 return Text(
                   'Actions rapides',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
                         fontSize: titleSize,
                       ),
                 );
               },
             ),
-            const SizedBox(height: AppTheme.paddingMedium),
+            const SizedBox(height: AppTheme.spaceSm),
             GridView.count(
               crossAxisCount: 2,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: AppTheme.paddingMedium,
-              crossAxisSpacing: AppTheme.paddingMedium,
+              mainAxisSpacing: AppTheme.spaceSm,
+              crossAxisSpacing: AppTheme.spaceSm,
+              childAspectRatio: 1.05,
               children: [
                 _QuickActionCard(
                   icon: Icons.play_circle_outline,
@@ -144,7 +136,7 @@ class HomeContentScreen extends StatelessWidget {
                   subtitle: 'Apprendre',
                   gradient: AppTheme.primaryGradient,
                   onTap: () {
-                    onNavigateToTab(1); // Onglet Signes
+                    onNavigateToTab(1);
                   },
                 ),
                 _QuickActionCard(
@@ -165,7 +157,7 @@ class HomeContentScreen extends StatelessWidget {
                   subtitle: 'Voir stats',
                   gradient: AppTheme.successGradient,
                   onTap: () {
-                    onNavigateToTab(2); // Onglet Progression
+                    onNavigateToTab(2);
                   },
                 ),
                 _QuickActionCard(
@@ -182,40 +174,37 @@ class HomeContentScreen extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: AppTheme.paddingLarge),
-
-            // Conseils d'apprentissage
+            const SizedBox(height: AppTheme.spaceLg),
             Builder(
               builder: (context) {
                 final screenHeight = MediaQuery.of(context).size.height;
                 final screenWidth = MediaQuery.of(context).size.width;
                 final isSmallScreen = screenHeight < 700 || screenWidth < 360;
                 final titleSize = isSmallScreen ? 16.0 : 20.0;
-                
+
                 return Text(
                   'Conseils d\'apprentissage',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
                         fontSize: titleSize,
                       ),
                 );
               },
             ),
-            const SizedBox(height: AppTheme.paddingMedium),
+            const SizedBox(height: AppTheme.spaceSm),
             const _TipCard(
               icon: Icons.lightbulb_outline,
               title: 'Pratiquez régulièrement',
               description: 'Consacrez 10-15 minutes par jour pour de meilleurs résultats.',
               color: AppTheme.primaryColor,
             ),
-            const SizedBox(height: AppTheme.paddingSmall),
+            const SizedBox(height: AppTheme.spaceXs),
             const _TipCard(
               icon: Icons.visibility_outlined,
               title: 'Observez attentivement',
               description: 'Faites attention aux détails de position des doigts et des mains.',
               color: AppTheme.secondaryColor,
             ),
-            const SizedBox(height: AppTheme.paddingSmall),
+            const SizedBox(height: AppTheme.spaceXs),
             const _TipCard(
               icon: Icons.repeat,
               title: 'Répétez les mouvements',
@@ -245,165 +234,165 @@ class _WelcomeCard extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenHeight < 700 || screenWidth < 360;
-    
+
     final greetingSize = isSmallScreen ? 12.0 : 14.0;
     final usernameSize = isSmallScreen ? 18.0 : 24.0;
     final badgeTextSize = isSmallScreen ? 11.0 : 13.0;
     final messageSize = isSmallScreen ? 12.0 : 14.0;
-    final iconSize = isSmallScreen ? 16.0 : 24.0;
-    final badgeIconSize = isSmallScreen ? 14.0 : 18.0;
-    final padding = isSmallScreen ? AppTheme.paddingMedium : AppTheme.paddingLarge;
+    final iconSize = isSmallScreen ? 16.0 : 22.0;
+    final badgeIconSize = isSmallScreen ? 14.0 : 16.0;
+    final padding = isSmallScreen ? AppTheme.spaceMd : AppTheme.page;
 
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
-        gradient: AppTheme.primaryGradient,
-        borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryColor.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+        boxShadow: AppTheme.shadow(context),
       ),
-      child: Padding(
-        padding: EdgeInsets.all(padding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(AppTheme.paddingSmall),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
-                  ),
-                  child: Icon(
-                    Icons.waving_hand,
-                    color: Colors.white,
-                    size: iconSize,
-                  ),
-                ),
-                SizedBox(width: AppTheme.paddingSmall),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Bonjour,',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: greetingSize,
-                        ),
-                      ),
-                      Text(
-                        username,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: usernameSize,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: AppTheme.paddingMedium),
-            Row(
-              children: [
-                Flexible(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppTheme.paddingSmall,
-                      vertical: AppTheme.paddingSmall / 2,
-                    ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradient,
+          borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(padding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(AppTheme.spaceXs),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+                      color: Colors.white.withValues(alpha: 0.16),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusXs),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                    child: Icon(
+                      Icons.waving_hand,
+                      color: Colors.white,
+                      size: iconSize,
+                    ),
+                  ),
+                  const SizedBox(width: AppTheme.spaceSm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          Icons.star,
-                          color: Colors.amber,
-                          size: badgeIconSize,
-                        ),
-                        SizedBox(width: AppTheme.paddingSmall / 2),
-                        Flexible(
-                          child: Text(
-                            'Niveau $level',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: badgeTextSize,
-                            ),
-                            overflow: TextOverflow.ellipsis,
+                        Text(
+                          'Bonjour,',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.82),
+                            fontSize: greetingSize,
+                            fontWeight: FontWeight.w500,
                           ),
+                        ),
+                        Text(
+                          username,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: usernameSize,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.4,
+                            height: 1.15,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ],
                     ),
                   ),
-                ),
-                SizedBox(width: 8),
-                Flexible(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppTheme.paddingSmall,
-                      vertical: AppTheme.paddingSmall / 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.bolt,
-                          color: Colors.amber,
-                          size: badgeIconSize,
-                        ),
-                        SizedBox(width: AppTheme.paddingSmall / 2),
-                        Flexible(
-                          child: Text(
-                            '$xp XP',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: badgeTextSize,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: AppTheme.paddingMedium),
-            Text(
-              'Continue ton apprentissage de l\'alphabet en langue des signes !',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: messageSize,
+                ],
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+              const SizedBox(height: AppTheme.spaceMd),
+              Row(
+                children: [
+                  Flexible(
+                    child: _Badge(
+                      icon: Icons.star_rounded,
+                      iconSize: badgeIconSize,
+                      label: 'Niveau $level',
+                      fontSize: badgeTextSize,
+                    ),
+                  ),
+                  const SizedBox(width: AppTheme.spaceXs),
+                  Flexible(
+                    child: _Badge(
+                      icon: Icons.bolt_rounded,
+                      iconSize: badgeIconSize,
+                      label: '$xp XP',
+                      fontSize: badgeTextSize,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppTheme.spaceMd),
+              Text(
+                'Continue ton apprentissage de l\'alphabet en langue des signes !',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.92),
+                  fontSize: messageSize,
+                  height: 1.4,
+                  fontWeight: FontWeight.w400,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _QuickActionCard extends StatefulWidget {
+class _Badge extends StatelessWidget {
+  final IconData icon;
+  final double iconSize;
+  final String label;
+  final double fontSize;
+
+  const _Badge({
+    required this.icon,
+    required this.iconSize,
+    required this.label,
+    required this.fontSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.spaceXs,
+        vertical: AppTheme.space2xs,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: const Color(0xFFFDE68A), size: iconSize),
+          const SizedBox(width: AppTheme.space2xs),
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: fontSize,
+                letterSpacing: -0.1,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickActionCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
@@ -419,77 +408,60 @@ class _QuickActionCard extends StatefulWidget {
   });
 
   @override
-  State<_QuickActionCard> createState() => _QuickActionCardState();
-}
-
-class _QuickActionCardState extends State<_QuickActionCard>
-    with SingleTickerProviderStateMixin {
-  @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenHeight < 700 || screenWidth < 360;
-    
-    final iconSize = isSmallScreen ? 28.0 : 40.0;
-    final titleSize = isSmallScreen ? 13.0 : 16.0;
-    final subtitleSize = isSmallScreen ? 10.0 : 12.0;
-    final padding = isSmallScreen ? AppTheme.paddingSmall : AppTheme.paddingMedium;
 
-    return InkWell(
+    final iconSize = isSmallScreen ? 24.0 : 28.0;
+    final titleSize = isSmallScreen ? 14.0 : 16.0;
+    final subtitleSize = isSmallScreen ? 11.0 : 13.0;
+    final padding = isSmallScreen ? AppTheme.spaceSm : AppTheme.spaceMd;
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+
+    return AppSurface(
       onTap: () {
         HapticFeedback.lightImpact();
-        widget.onTap();
+        onTap();
       },
-      borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: widget.gradient,
-          borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-          boxShadow: AppTheme.cardShadow,
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(padding),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: EdgeInsets.all(padding),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
-                ),
-                child: Icon(
-                  widget.icon,
-                  size: iconSize,
-                  color: Colors.white,
-                ),
-              ),
-              SizedBox(height: AppTheme.paddingSmall),
-              Text(
-                widget.title,
-                style: TextStyle(
-                  fontSize: titleSize,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              SizedBox(height: 4),
-              Text(
-                widget.subtitle,
-                style: TextStyle(
-                  fontSize: subtitleSize,
-                  color: Colors.white.withValues(alpha: 0.9),
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+      padding: EdgeInsets.all(padding),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: EdgeInsets.all(isSmallScreen ? 10 : 12),
+            decoration: BoxDecoration(
+              gradient: gradient,
+              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+            ),
+            child: Icon(icon, size: iconSize, color: Colors.white),
           ),
-        ),
+          SizedBox(height: isSmallScreen ? 8 : 12),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: titleSize,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.2,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            subtitle,
+            style: TextStyle(
+              fontSize: subtitleSize,
+              fontWeight: FontWeight.w500,
+              color: muted,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }
@@ -510,59 +482,46 @@ class _TipCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+
+    return AppSurface(
+      padding: const EdgeInsets.all(AppTheme.spaceMd),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppTheme.spaceXs),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(AppTheme.radiusXs),
+            ),
+            child: Icon(icon, size: 22, color: color),
+          ),
+          const SizedBox(width: AppTheme.spaceMd),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    letterSpacing: -0.1,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 1.35,
+                    color: muted,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppTheme.paddingMedium),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppTheme.paddingSmall),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
-              ),
-              child: Icon(
-                icon,
-                size: 24,
-                color: color,
-              ),
-            ),
-            const SizedBox(width: AppTheme.paddingMedium),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

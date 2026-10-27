@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
 
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
@@ -11,7 +12,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
         title: const Text('Politique de confidentialite'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppTheme.page),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

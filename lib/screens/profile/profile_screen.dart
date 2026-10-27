@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../services/auth_provider.dart';
 import '../../services/theme_provider.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/app_surface.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -38,29 +40,29 @@ class ProfileScreen extends StatelessWidget {
             // En-tête du profil
             Container(
               width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).primaryColor,
-                    Theme.of(context).primaryColor.withValues(alpha: 0.7),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+              decoration: const BoxDecoration(
+                gradient: AppTheme.primaryGradient,
               ),
-              padding: const EdgeInsets.all(32.0),
+              padding: const EdgeInsets.fromLTRB(20, 28, 20, 28),
               child: Column(
                 children: [
-                  // Avatar
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundColor: Colors.white,
-                    child: Text(
-                      user.username[0].toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor,
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.7), width: 2),
+                    ),
+                    child: CircleAvatar(
+                      radius: 48,
+                      backgroundColor: Colors.white,
+                      child: Text(
+                        user.username[0].toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.5,
+                          color: AppTheme.primaryColor,
+                        ),
                       ),
                     ),
                   ),
@@ -68,8 +70,9 @@ class ProfileScreen extends StatelessWidget {
                   Text(
                     user.username,
                     style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.4,
                       color: Colors.white,
                     ),
                   ),
@@ -117,7 +120,7 @@ class ProfileScreen extends StatelessWidget {
 
             // Informations du compte
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(AppTheme.page),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -125,32 +128,32 @@ class ProfileScreen extends StatelessWidget {
                     'Informations du compte',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spaceSm),
                   _InfoCard(
                     icon: Icons.person,
                     title: 'Nom d\'utilisateur',
                     value: user.username,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppTheme.spaceXs),
                   _InfoCard(
-                    icon: Icons.email,
+                    icon: Icons.email_outlined,
                     title: 'Email',
                     value: user.email,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppTheme.spaceXs),
                   _InfoCard(
-                    icon: Icons.calendar_today,
+                    icon: Icons.calendar_today_outlined,
                     title: 'Membre depuis',
                     value: dateFormat.format(user.createdAt),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppTheme.spaceLg),
 
                   // Paramètres
                   Text(
                     'Paramètres',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spaceSm),
                   _SettingsTile(
                     icon: Icons.notifications,
                     title: 'Notifications',
@@ -200,14 +203,14 @@ class ProfileScreen extends StatelessWidget {
                       _showAboutDialog(context);
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppTheme.spaceLg),
 
                   // Section RGPD
                   Text(
                     'Données personnelles (RGPD)',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spaceSm),
                   SwitchListTile.adaptive(
                     value: user.gdprConsent,
                     contentPadding: EdgeInsets.zero,
@@ -241,6 +244,7 @@ class ProfileScreen extends StatelessWidget {
                         );
                         if (confirm != true) return;
                       }
+                      if (!context.mounted) return;
                       await _updateConsent(
                         context,
                         authProvider,
@@ -281,6 +285,7 @@ class ProfileScreen extends StatelessWidget {
                         );
                         if (confirm != true) return;
                       }
+                      if (!context.mounted) return;
                       await _updateConsent(
                         context,
                         authProvider,
@@ -320,28 +325,27 @@ class ProfileScreen extends StatelessWidget {
                     subtitle: 'Action irréversible',
                     onTap: () => _deleteAccount(context, authProvider),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppTheme.spaceLg),
 
                   // Bouton de déconnexion
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton.icon(
+                    child: FilledButton.icon(
                       onPressed: () async {
                         final shouldLogout = await _showLogoutDialog(context);
                         if (shouldLogout == true) {
                           await authProvider.logout();
                         }
                       },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppTheme.errorColor,
+                        foregroundColor: Colors.white,
+                      ),
                       icon: const Icon(Icons.logout),
                       label: const Text('Se déconnecter'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spaceMd),
                 ],
               ),
             ),
@@ -376,14 +380,14 @@ class ProfileScreen extends StatelessWidget {
       messenger.showSnackBar(
         const SnackBar(
           content: Text('✅ Préférences RGPD mises à jour'),
-          backgroundColor: Colors.green,
+          backgroundColor: AppTheme.successColor,
         ),
       );
     } catch (e) {
       messenger.showSnackBar(
         SnackBar(
           content: Text('❌ Erreur: ${e.toString()}'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppTheme.errorColor,
         ),
       );
     }
@@ -407,7 +411,7 @@ class ProfileScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: AppTheme.errorColor,
               foregroundColor: Colors.white,
             ),
             child: const Text('Continuer'),
@@ -548,9 +552,9 @@ class ProfileScreen extends StatelessWidget {
             themeProvider.setThemeMode(value);
             Navigator.pop(context);
           },
-          child: Column(
+          child: const Column(
             mainAxisSize: MainAxisSize.min,
-            children: const [
+            children: [
               RadioListTile<ThemeMode>(
                 title: Text('Clair'),
                 value: ThemeMode.light,
@@ -613,7 +617,7 @@ class ProfileScreen extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: ${e.toString()}'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.errorColor,
           ),
         );
       }
@@ -636,7 +640,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.errorColor),
             child: const Text('Supprimer définitivement'),
           ),
         ],
@@ -653,7 +657,7 @@ class ProfileScreen extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('✅ Compte supprimé'),
-            backgroundColor: Colors.green,
+            backgroundColor: AppTheme.successColor,
           ),
         );
       }
@@ -662,7 +666,7 @@ class ProfileScreen extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: ${e.toString()}'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.errorColor,
           ),
         );
       }
@@ -683,43 +687,47 @@ class _InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Icon(
+    return AppSurface(
+      padding: const EdgeInsets.all(AppTheme.spaceMd),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(AppTheme.radiusXs),
+            ),
+            child: Icon(
               icon,
-              size: 32,
+              size: 20,
               color: Theme.of(context).brightness == Brightness.dark
                   ? Colors.white
-                  : Theme.of(context).primaryColor,
+                  : AppTheme.primaryColor,
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+          ),
+          const SizedBox(width: AppTheme.spaceMd),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.15,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    value,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -742,13 +750,17 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return AppSurface(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
-        leading: Icon(icon),
+        leading: Icon(icon, color: AppTheme.primaryColor),
         title: Text(title),
         subtitle: Text(subtitle),
-        trailing: trailing ?? const Icon(Icons.chevron_right),
+        trailing: trailing ??
+            Icon(
+              Icons.chevron_right,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
         onTap: onTap,
       ),
     );

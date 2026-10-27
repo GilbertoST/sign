@@ -46,6 +46,19 @@ class MyApp extends StatelessWidget {
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: themeProvider.themeMode,
+            builder: (context, child) {
+              final dark = Theme.of(context).brightness == Brightness.dark;
+              return AnnotatedRegion<SystemUiOverlayStyle>(
+                value: SystemUiOverlayStyle(
+                  statusBarColor: Colors.transparent,
+                  statusBarIconBrightness: dark ? Brightness.light : Brightness.dark,
+                  systemNavigationBarColor: dark ? AppTheme.darkSurface : Colors.white,
+                  systemNavigationBarIconBrightness:
+                      dark ? Brightness.light : Brightness.dark,
+                ),
+                child: child ?? const SizedBox.shrink(),
+              );
+            },
             home: const AuthWrapper(),
             onGenerateRoute: (settings) {
               switch (settings.name) {

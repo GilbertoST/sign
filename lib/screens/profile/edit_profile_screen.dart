@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 import '../../services/auth_provider.dart';
+import '../../theme/app_theme.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -67,7 +68,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('✅ Profil mis à jour !'),
-            backgroundColor: Colors.green,
+            backgroundColor: AppTheme.successColor,
           ),
         );
         Navigator.pop(context);
@@ -77,7 +78,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('❌ Erreur: ${e.toString()}'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.errorColor,
           ),
         );
       }
@@ -106,7 +107,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(AppTheme.page),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -157,18 +158,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 if (storageStatus.isDenied) {
                                   final result = await Permission.storage.request();
                                   if (result.isDenied || result.isPermanentlyDenied) {
-                                    if (mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Permission nécessaire pour accéder aux fichiers'),
-                                          backgroundColor: Colors.orange,
-                                          action: SnackBarAction(
-                                            label: 'Paramètres',
-                                            onPressed: openAppSettings,
-                                          ),
+                                    if (!context.mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Permission nécessaire pour accéder aux fichiers'),
+                                        backgroundColor: AppTheme.secondaryColor,
+                                        action: SnackBarAction(
+                                          label: 'Paramètres',
+                                          onPressed: openAppSettings,
                                         ),
-                                      );
-                                    }
+                                      ),
+                                    );
                                     return;
                                   }
                                 }
@@ -178,18 +178,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 if (photosStatus.isDenied) {
                                   final result = await Permission.photos.request();
                                   if (result.isDenied || result.isPermanentlyDenied) {
-                                    if (mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Permission nécessaire pour accéder aux photos'),
-                                          backgroundColor: Colors.orange,
-                                          action: SnackBarAction(
-                                            label: 'Paramètres',
-                                            onPressed: openAppSettings,
-                                          ),
+                                    if (!context.mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Permission nécessaire pour accéder aux photos'),
+                                        backgroundColor: AppTheme.secondaryColor,
+                                        action: SnackBarAction(
+                                          label: 'Paramètres',
+                                          onPressed: openAppSettings,
                                         ),
-                                      );
-                                    }
+                                      ),
+                                    );
                                     return;
                                   }
                                 }
@@ -215,14 +214,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 });
                               }
                             } catch (e) {
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Erreur: ${e.toString()}'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Erreur: ${e.toString()}'),
+                                  backgroundColor: AppTheme.errorColor,
+                                ),
+                              );
                             }
                           },
                           child: const Icon(Icons.photo_library),
@@ -234,12 +232,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     // Username
                     TextFormField(
                       controller: _usernameController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Nom d\'utilisateur',
-                        prefixIcon: const Icon(Icons.person),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        prefixIcon: Icon(Icons.person_outline),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -256,12 +251,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     // Email
                     TextFormField(
                       controller: _emailController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Email',
-                        prefixIcon: const Icon(Icons.email),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        prefixIcon: Icon(Icons.email_outlined),
                       ),
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
@@ -279,13 +271,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     // Bio
                     TextFormField(
                       controller: _bioController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Bio (optionnel)',
                         hintText: 'Parlez-nous de vous...',
-                        prefixIcon: const Icon(Icons.notes),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        prefixIcon: Icon(Icons.notes_outlined),
                       ),
                       maxLines: 3,
                       maxLength: 200,
@@ -295,15 +284,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     // Bouton de sauvegarde
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton.icon(
+                      child: FilledButton.icon(
                         onPressed: _isLoading ? null : _saveProfile,
-                        icon: const Icon(Icons.save),
+                        icon: const Icon(Icons.save_outlined),
                         label: const Text('Enregistrer les modifications'),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                        ),
                       ),
                     ),
                   ],
