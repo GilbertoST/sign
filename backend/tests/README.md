@@ -23,15 +23,15 @@ Ce dossier contient tous les tests pour le backend Python.
 ## Installation
 
 ```bash
-cd backend
-pip install -r requirements.txt
+# à la racine du dépôt
+pip install -r backend/requirements.txt
 ```
 
 ## Exécution des tests
 
 ### Tous les tests
 ```bash
-pytest backend/tests/ -v
+pytest
 ```
 
 ### Tests unitaires uniquement

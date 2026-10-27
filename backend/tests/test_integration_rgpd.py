@@ -1,8 +1,6 @@
 """
 Tests d'intégration pour les fonctionnalités RGPD
 """
-import pytest
-from backend.tests.conftest import client
 
 
 class TestRGPDIntegration:

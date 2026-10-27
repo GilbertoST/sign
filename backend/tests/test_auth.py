@@ -3,7 +3,7 @@ Tests unitaires pour l'authentification
 """
 import pytest
 from fastapi import HTTPException
-from backend.auth import (
+from auth import (
     validate_password_strength,
     get_password_hash,
     verify_password,
