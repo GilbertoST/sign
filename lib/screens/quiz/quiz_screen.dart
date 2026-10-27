@@ -584,7 +584,7 @@ class _QuizScreenState extends State<QuizScreen> {
                       backgroundColor = Colors.red;
                     }
                   } else if (isSelected) {
-                    backgroundColor = Colors.blue.withOpacity(0.3);
+                    backgroundColor = Colors.blue.withValues(alpha: 0.3);
                   }
 
                   return ElevatedButton(
@@ -650,7 +650,7 @@ class _QuizScreenState extends State<QuizScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.1) : Colors.grey[100],
+          color: isSelected ? color.withValues(alpha: 0.1) : Colors.grey[100],
           border: Border.all(
             color: isSelected ? color : Colors.grey[300]!,
             width: isSelected ? 3 : 1,
@@ -662,7 +662,7 @@ class _QuizScreenState extends State<QuizScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
+                color: color.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Builder(

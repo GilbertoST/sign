@@ -49,7 +49,7 @@ class AppTheme {
   // Shadows
   static List<BoxShadow> cardShadow = [
     BoxShadow(
-      color: Colors.black.withOpacity(0.08),
+      color: Colors.black.withValues(alpha: 0.08),
       blurRadius: 10,
       offset: const Offset(0, 4),
     ),
@@ -57,7 +57,7 @@ class AppTheme {
   
   static List<BoxShadow> buttonShadow = [
     BoxShadow(
-      color: primaryColor.withOpacity(0.3),
+      color: primaryColor.withValues(alpha: 0.3),
       blurRadius: 8,
       offset: const Offset(0, 4),
     ),
@@ -95,7 +95,7 @@ class AppTheme {
     cardTheme: CardThemeData(
       elevation: 0,
       color: Colors.white,
-      shadowColor: Colors.black.withOpacity(0.1),
+      shadowColor: Colors.black.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadiusLarge),
       ),
@@ -141,7 +141,7 @@ class AppTheme {
     navigationBarTheme: NavigationBarThemeData(
       elevation: 0,
       backgroundColor: Colors.white,
-      indicatorColor: primaryColor.withOpacity(0.15),
+      indicatorColor: primaryColor.withValues(alpha: 0.15),
       labelTextStyle: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
           return const TextStyle(
@@ -224,7 +224,7 @@ class AppTheme {
     navigationBarTheme: NavigationBarThemeData(
       elevation: 0,
       backgroundColor: const Color(0xFF1E1E1E),
-      indicatorColor: primaryColor.withOpacity(0.25),
+      indicatorColor: primaryColor.withValues(alpha: 0.25),
     ),
   );
 }

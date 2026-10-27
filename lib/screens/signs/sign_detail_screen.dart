@@ -139,7 +139,7 @@ class _SignDetailScreenState extends State<SignDetailScreen> {
                       decoration: BoxDecoration(
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Colors.black.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -189,7 +189,7 @@ class _SignDetailScreenState extends State<SignDetailScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.6),
+                                color: Colors.black.withValues(alpha: 0.6),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -225,7 +225,7 @@ class _SignDetailScreenState extends State<SignDetailScreen> {
                       ),
                       Chip(
                         label: Text(widget.sign.difficultyLabel),
-                        backgroundColor: _getDifficultyColor().withOpacity(0.2),
+                        backgroundColor: _getDifficultyColor().withValues(alpha: 0.2),
                         labelStyle: TextStyle(
                           color: _getDifficultyColor(),
                           fontWeight: FontWeight.bold,

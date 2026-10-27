@@ -42,7 +42,7 @@ class ProfileScreen extends StatelessWidget {
                 gradient: LinearGradient(
                   colors: [
                     Theme.of(context).primaryColor,
-                    Theme.of(context).primaryColor.withOpacity(0.7),
+                    Theme.of(context).primaryColor.withValues(alpha: 0.7),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -88,7 +88,7 @@ class ProfileScreen extends StatelessWidget {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -541,37 +541,30 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Choisir le thème'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioListTile<ThemeMode>(
-              title: const Text('Clair'),
-              value: ThemeMode.light,
-              groupValue: themeProvider.themeMode,
-              onChanged: (value) {
-                themeProvider.setThemeMode(ThemeMode.light);
-                Navigator.pop(context);
-              },
-            ),
-            RadioListTile<ThemeMode>(
-              title: const Text('Sombre'),
-              value: ThemeMode.dark,
-              groupValue: themeProvider.themeMode,
-              onChanged: (value) {
-                themeProvider.setThemeMode(ThemeMode.dark);
-                Navigator.pop(context);
-              },
-            ),
-            RadioListTile<ThemeMode>(
-              title: const Text('Système'),
-              value: ThemeMode.system,
-              groupValue: themeProvider.themeMode,
-              onChanged: (value) {
-                themeProvider.setThemeMode(ThemeMode.system);
-                Navigator.pop(context);
-              },
-            ),
-          ],
+        content: RadioGroup<ThemeMode>(
+          groupValue: themeProvider.themeMode,
+          onChanged: (value) {
+            if (value == null) return;
+            themeProvider.setThemeMode(value);
+            Navigator.pop(context);
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              RadioListTile<ThemeMode>(
+                title: Text('Clair'),
+                value: ThemeMode.light,
+              ),
+              RadioListTile<ThemeMode>(
+                title: Text('Sombre'),
+                value: ThemeMode.dark,
+              ),
+              RadioListTile<ThemeMode>(
+                title: Text('Système'),
+                value: ThemeMode.system,
+              ),
+            ],
+          ),
         ),
       ),
     );

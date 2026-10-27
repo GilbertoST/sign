@@ -315,7 +315,7 @@ class _EncouragementCard extends StatelessWidget {
     }
 
     return Card(
-      color: color.withOpacity(0.1),
+      color: color.withValues(alpha: 0.1),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Row(
@@ -332,7 +332,7 @@ class _EncouragementCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: color.withOpacity(0.9),
+                  color: color.withValues(alpha: 0.9),
                 ),
               ),
             ),
