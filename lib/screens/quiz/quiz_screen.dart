@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import '../../models/sign.dart';
 import '../../models/learning_session.dart';
 import '../../services/auth_provider.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/app_surface.dart';
 import '../../widgets/guest_conversion_dialog.dart';
 
 enum QuizMode { libre, intermediaire, expert }
@@ -172,7 +174,7 @@ class _QuizScreenState extends State<QuizScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('❌ Mauvaise réponse. La bonne lettre était: ${currentSign.letter}'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.errorColor,
             duration: const Duration(milliseconds: 900),
           ),
         );
@@ -180,6 +182,7 @@ class _QuizScreenState extends State<QuizScreen> {
     }
 
     // Enregistrer la tentative
+    if (!mounted) return;
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       await authProvider.apiService.createAttempt(
@@ -232,7 +235,7 @@ class _QuizScreenState extends State<QuizScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('🎉 Défi Premier pas complété ! +${challengeResult['xp_added']} XP !'),
-                  backgroundColor: Colors.yellow[700],
+                  backgroundColor: AppTheme.amber,
                   duration: const Duration(seconds: 3),
                 ),
               );
@@ -272,7 +275,7 @@ class _QuizScreenState extends State<QuizScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('🎉 Quiz parfait ! +50 XP bonus !'),
-                backgroundColor: Colors.amber,
+                backgroundColor: AppTheme.amber,
                 duration: Duration(seconds: 3),
               ),
             );
@@ -336,7 +339,7 @@ class _QuizScreenState extends State<QuizScreen> {
           title: const Text('Choisir le mode de quiz'),
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(AppTheme.page),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -346,89 +349,64 @@ class _QuizScreenState extends State<QuizScreen> {
                   final screenHeight = MediaQuery.of(context).size.height;
                   final screenWidth = MediaQuery.of(context).size.width;
                   final isSmallScreen = screenHeight < 700 || screenWidth < 360;
-                  final iconSize = isSmallScreen ? 50.0 : 80.0;
-                  final titleSize = isSmallScreen ? 18.0 : 24.0;
-                  
+                  final iconSize = isSmallScreen ? 44.0 : 56.0;
+                  final titleSize = isSmallScreen ? 18.0 : 22.0;
+
                   return Column(
                     children: [
-                      Icon(
-                        Icons.quiz,
-                        size: iconSize,
-                        color: Colors.blue,
+                      Container(
+                        width: iconSize + 28,
+                        height: iconSize + 28,
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+                        ),
+                        child: Icon(
+                          Icons.quiz_outlined,
+                          size: iconSize,
+                          color: AppTheme.primaryColor,
+                        ),
                       ),
-                      SizedBox(height: isSmallScreen ? 16 : 24),
+                      SizedBox(height: isSmallScreen ? 16 : 20),
                       Text(
                         'Sélectionnez votre niveau de défi',
-                        style: TextStyle(
-                          fontSize: titleSize,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontSize: titleSize,
+                            ),
                         textAlign: TextAlign.center,
                       ),
                     ],
                   );
                 },
               ),
-              const SizedBox(height: 48),
-              
+              const SizedBox(height: AppTheme.spaceXl),
               _buildModeCard(
                 mode: QuizMode.libre,
                 icon: Icons.all_inclusive,
                 title: 'Mode Libre',
                 description: 'Pas de limite de temps\nParfait pour apprendre',
-                color: Colors.green,
+                color: AppTheme.successColor,
               ),
-              const SizedBox(height: 16),
-              
+              const SizedBox(height: AppTheme.spaceSm),
               _buildModeCard(
                 mode: QuizMode.intermediaire,
-                icon: Icons.timer,
+                icon: Icons.timer_outlined,
                 title: 'Mode Intermédiaire',
                 description: '5 secondes par question\nÉquilibre défi/confiance',
-                color: Colors.orange,
+                color: AppTheme.secondaryColor,
               ),
-              const SizedBox(height: 16),
-              
+              const SizedBox(height: AppTheme.spaceSm),
               _buildModeCard(
                 mode: QuizMode.expert,
                 icon: Icons.flash_on,
                 title: 'Mode Expert',
                 description: '3 secondes par question\nPour les pros !',
-                color: Colors.red,
+                color: AppTheme.errorColor,
               ),
-              const SizedBox(height: 32),
-              
-              Builder(
-                builder: (context) {
-                  final screenHeight = MediaQuery.of(context).size.height;
-                  final screenWidth = MediaQuery.of(context).size.width;
-                  final isSmallScreen = screenHeight < 700 || screenWidth < 360;
-                  final buttonFontSize = isSmallScreen ? 14.0 : 18.0;
-                  
-                  return SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _startQuiz,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(
-                          vertical: isSmallScreen ? 12 : 16,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        'Commencer le Quiz',
-                        style: TextStyle(
-                          fontSize: buttonFontSize,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  );
-                },
+              const SizedBox(height: AppTheme.spaceLg),
+              FilledButton(
+                onPressed: _startQuiz,
+                child: const Text('Commencer le Quiz'),
               ),
             ],
           ),
@@ -458,99 +436,98 @@ class _QuizScreenState extends State<QuizScreen> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(AppTheme.page),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Barre de progression du quiz
-            LinearProgressIndicator(
-              value: (_currentIndex + 1) / _quizSigns.length,
-              minHeight: 8,
-              borderRadius: BorderRadius.circular(4),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+              child: LinearProgressIndicator(
+                value: (_currentIndex + 1) / _quizSigns.length,
+                minHeight: 8,
+                color: AppTheme.primaryColor,
+              ),
             ),
-            const SizedBox(height: 16),
-            
-            // Indicateur de temps (si mode avec timer)
+            const SizedBox(height: AppTheme.spaceMd),
             if (_selectedMode != QuizMode.libre && !_hasAnswered)
               Column(
                 children: [
-                  LinearProgressIndicator(
-                    value: _timeLeft / (_selectedMode == QuizMode.expert ? 3 : 5),
-                    minHeight: 6,
-                    backgroundColor: Colors.grey[300],
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      _timeLeft <= 1 ? Colors.red : Colors.blue,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                    child: LinearProgressIndicator(
+                      value: _timeLeft / (_selectedMode == QuizMode.expert ? 3 : 5),
+                      minHeight: 6,
+                      color: _timeLeft <= 1 ? AppTheme.errorColor : AppTheme.primaryColor,
+                      backgroundColor: Theme.of(context).brightness == Brightness.dark
+                          ? AppTheme.darkTrack
+                          : AppTheme.track,
                     ),
-                    borderRadius: BorderRadius.circular(3),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppTheme.spaceXs),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        Icons.timer,
-                        size: 20,
-                        color: _timeLeft <= 1 ? Colors.red : Colors.blue,
+                        Icons.timer_outlined,
+                        size: 18,
+                        color: _timeLeft <= 1 ? AppTheme.errorColor : AppTheme.primaryColor,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppTheme.spaceXs),
                       Text(
                         '$_timeLeft s',
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: _timeLeft <= 1 ? Colors.red : Colors.blue,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.2,
+                          color: _timeLeft <= 1 ? AppTheme.errorColor : AppTheme.primaryColor,
+                          fontFeatures: const [FontFeature.tabularFigures()],
                         ),
                       ),
                     ],
                   ),
                 ],
               ),
-            const SizedBox(height: 16),
-
-            // Score actuel
+            const SizedBox(height: AppTheme.spaceSm),
             Text(
               'Score: $_score/${_currentIndex + (_hasAnswered ? 1 : 0)}',
-              style: Theme.of(context).textTheme.titleLarge,
+              style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
-
-            // Question
+            const SizedBox(height: AppTheme.spaceMd),
             Builder(
               builder: (context) {
                 final screenHeight = MediaQuery.of(context).size.height;
                 final screenWidth = MediaQuery.of(context).size.width;
                 final isSmallScreen = screenHeight < 700 || screenWidth < 360;
-                
+
                 return Text(
                   'Quelle lettre représente ce signe ?',
-                  style: TextStyle(
-                    fontSize: isSmallScreen ? 16.0 : 20.0,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontSize: isSmallScreen ? 16.0 : 20.0,
+                      ),
                   textAlign: TextAlign.center,
                 );
               },
             ),
-            const SizedBox(height: 32),
-
-            // Lettre à identifier
+            const SizedBox(height: AppTheme.spaceMd),
             Expanded(
               flex: 2,
-              child: Card(
+              child: AppSurface(
                 child: Center(
                   child: Builder(
                     builder: (context) {
                       final screenHeight = MediaQuery.of(context).size.height;
                       final screenWidth = MediaQuery.of(context).size.width;
                       final isSmallScreen = screenHeight < 700 || screenWidth < 360;
-                      
+
                       return Text(
                         currentSign.letter,
                         style: TextStyle(
-                          fontSize: isSmallScreen ? 80.0 : 120.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+                          fontSize: isSmallScreen ? 80.0 : 112.0,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -2,
+                          height: 1,
+                          color: AppTheme.primaryColor,
                         ),
                       );
                     },
@@ -558,33 +535,31 @@ class _QuizScreenState extends State<QuizScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 32),
-
-            // Options de réponse
+            const SizedBox(height: AppTheme.spaceMd),
             Expanded(
               flex: 3,
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 1.5,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.45,
                 ),
                 itemCount: options.length,
                 itemBuilder: (context, index) {
                   final option = options[index];
                   final isSelected = _selectedAnswer == option;
                   final isCorrect = option == currentSign.letter;
-                  
+
                   Color? backgroundColor;
                   if (_hasAnswered) {
                     if (isCorrect) {
-                      backgroundColor = Colors.green;
+                      backgroundColor = AppTheme.successColor;
                     } else if (isSelected) {
-                      backgroundColor = Colors.red;
+                      backgroundColor = AppTheme.errorColor;
                     }
                   } else if (isSelected) {
-                    backgroundColor = Colors.blue.withValues(alpha: 0.3);
+                    backgroundColor = AppTheme.primaryColor.withValues(alpha: 0.16);
                   }
 
                   return ElevatedButton(
@@ -596,8 +571,17 @@ class _QuizScreenState extends State<QuizScreen> {
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: backgroundColor,
+                      elevation: 0,
+                      side: backgroundColor == null
+                          ? null
+                          : BorderSide(
+                              color: backgroundColor == AppTheme.successColor ||
+                                      backgroundColor == AppTheme.errorColor
+                                  ? Colors.transparent
+                                  : AppTheme.primaryColor.withValues(alpha: 0.35),
+                            ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusButton),
                       ),
                       padding: const EdgeInsets.all(8),
                     ),
@@ -610,13 +594,16 @@ class _QuizScreenState extends State<QuizScreen> {
                           children: [
                             Icon(
                               Icons.image_not_supported,
-                              size: 40,
-                              color: Colors.grey,
+                              size: 36,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(height: 4),
                             Text(
                               option,
-                              style: const TextStyle(fontSize: 12),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
                         );
@@ -640,97 +627,84 @@ class _QuizScreenState extends State<QuizScreen> {
     required Color color,
   }) {
     final isSelected = _selectedMode == mode;
-    
-    return InkWell(
-      onTap: () {
-        setState(() => _selectedMode = mode);
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.1) : Colors.grey[100],
-          border: Border.all(
-            color: isSelected ? color : Colors.grey[300]!,
-            width: isSelected ? 3 : 1,
+    final ink = Theme.of(context).colorScheme.onSurface;
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenHeight < 700 || screenWidth < 360;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+        boxShadow: AppTheme.shadow(context),
+      ),
+      child: Material(
+        color: isSelected
+            ? color.withValues(alpha: 0.08)
+            : AppTheme.cardColor(context),
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+          side: BorderSide(
+            color: isSelected ? color : AppTheme.line(context),
+            width: 1.5,
           ),
-          borderRadius: BorderRadius.circular(16),
         ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Builder(
-                builder: (context) {
-                  final screenHeight = MediaQuery.of(context).size.height;
-                  final screenWidth = MediaQuery.of(context).size.width;
-                  final isSmallScreen = screenHeight < 700 || screenWidth < 360;
-                  
-                  return Icon(
-                    icon,
-                    size: isSmallScreen ? 24.0 : 32.0,
-                    color: color,
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Builder(
-                    builder: (context) {
-                      final screenHeight = MediaQuery.of(context).size.height;
-                      final screenWidth = MediaQuery.of(context).size.width;
-                      final isSmallScreen = screenHeight < 700 || screenWidth < 360;
-                      
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            style: TextStyle(
-                              fontSize: isSmallScreen ? 14.0 : 18.0,
-                              fontWeight: FontWeight.bold,
-                              color: isSelected ? color : Colors.black87,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            description,
-                            style: TextStyle(
-                              fontSize: isSmallScreen ? 11.0 : 14.0,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                        ],
-                      );
-                    },
+        child: InkWell(
+          onTap: () {
+            setState(() => _selectedMode = mode);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(AppTheme.spaceMd),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                   ),
-                ],
-              ),
-            ),
-            if (isSelected)
-              Builder(
-                builder: (context) {
-                  final screenHeight = MediaQuery.of(context).size.height;
-                  final screenWidth = MediaQuery.of(context).size.width;
-                  final isSmallScreen = screenHeight < 700 || screenWidth < 360;
-                  
-                  return Icon(
+                  child: Icon(
+                    icon,
+                    size: isSmallScreen ? 22.0 : 28.0,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(width: AppTheme.spaceMd),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 14.0 : 16.0,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.2,
+                          color: isSelected ? color : ink,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        description,
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 12.0 : 13.0,
+                          height: 1.35,
+                          color: muted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (isSelected)
+                  Icon(
                     Icons.check_circle,
                     color: color,
-                    size: isSmallScreen ? 22.0 : 28.0,
-                  );
-                },
-              ),
-          ],
+                    size: isSmallScreen ? 22.0 : 26.0,
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );

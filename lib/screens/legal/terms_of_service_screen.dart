@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
 
 class TermsOfServiceScreen extends StatelessWidget {
   const TermsOfServiceScreen({super.key});
@@ -11,7 +12,7 @@ class TermsOfServiceScreen extends StatelessWidget {
         title: const Text('Conditions d\'utilisation'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppTheme.page),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

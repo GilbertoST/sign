@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_provider.dart';
+import '../theme/app_theme.dart';
 
 class GuestConversionDialog extends StatefulWidget {
   const GuestConversionDialog({super.key});
@@ -35,7 +36,7 @@ class _GuestConversionDialogState extends State<GuestConversionDialog> {
           content: Text(
             'Merci d\'accepter la politique de confidentialité et le traitement des données pour créer ton compte.',
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: AppTheme.errorColor,
         ),
       );
       return;
@@ -58,7 +59,7 @@ class _GuestConversionDialogState extends State<GuestConversionDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('🎉 Compte créé avec succès ! Ta progression est sauvegardée.'),
-            backgroundColor: Colors.green,
+            backgroundColor: AppTheme.successColor,
           ),
         );
       }
@@ -67,7 +68,7 @@ class _GuestConversionDialogState extends State<GuestConversionDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: ${e.toString()}'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.errorColor,
           ),
         );
       }
@@ -235,13 +236,16 @@ class _GuestConversionDialogState extends State<GuestConversionDialog> {
           onPressed: _isLoading ? null : () => Navigator.pop(context),
           child: const Text('Plus tard'),
         ),
-        ElevatedButton(
+        FilledButton(
           onPressed: _isLoading ? null : _handleConversion,
           child: _isLoading
               ? const SizedBox(
                   height: 20,
                   width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
                 )
               : const Text('Créer mon compte'),
         ),

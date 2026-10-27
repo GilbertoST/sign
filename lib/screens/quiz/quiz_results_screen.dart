@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/app_surface.dart';
 
 class QuizResultsScreen extends StatelessWidget {
   final int score;
@@ -21,115 +23,101 @@ class QuizResultsScreen extends StatelessWidget {
     if (percentage >= 80) {
       message = 'Excellent travail !';
       icon = Icons.emoji_events;
-      color = Colors.amber;
+      color = AppTheme.amber;
     } else if (percentage >= 60) {
       message = 'Bon travail !';
       icon = Icons.thumb_up;
-      color = Colors.green;
+      color = AppTheme.successColor;
     } else if (percentage >= 40) {
       message = 'Pas mal, continue !';
       icon = Icons.sentiment_satisfied;
-      color = Colors.orange;
+      color = AppTheme.secondaryColor;
     } else {
       message = 'Continue à pratiquer !';
       icon = Icons.refresh;
-      color = Colors.blue;
+      color = AppTheme.primaryColor;
     }
 
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(AppTheme.page),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Icône de résultat
-              Icon(
-                icon,
-                size: 100,
-                color: color,
-              ),
-              const SizedBox(height: 24),
-
-              // Message
+              Icon(icon, size: 72, color: color),
+              const SizedBox(height: AppTheme.spaceMd),
               Text(
                 message,
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.headlineSmall,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 48),
-
-              // Score
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        '$score / $total',
-                        style: const TextStyle(
-                          fontSize: 48,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${percentage.toStringAsFixed(1)}%',
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      LinearProgressIndicator(
+              const SizedBox(height: AppTheme.spaceXl),
+              AppSurface(
+                padding: const EdgeInsets.all(AppTheme.spaceLg),
+                child: Column(
+                  children: [
+                    Text(
+                      '$score / $total',
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                    ),
+                    const SizedBox(height: AppTheme.spaceXs),
+                    Text(
+                      '${percentage.toStringAsFixed(1)}%',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                    ),
+                    const SizedBox(height: AppTheme.spaceMd),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                      child: LinearProgressIndicator(
                         value: percentage / 100,
                         minHeight: 8,
-                        borderRadius: BorderRadius.circular(4),
-                        backgroundColor: Colors.grey[300],
-                        valueColor: AlwaysStoppedAnimation<Color>(color),
+                        color: color,
+                        backgroundColor: Theme.of(context).brightness == Brightness.dark
+                            ? AppTheme.darkTrack
+                            : AppTheme.track,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 48),
-
-              // Statistiques détaillées
+              const SizedBox(height: AppTheme.spaceLg),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _StatCard(
-                    icon: Icons.check_circle,
-                    label: 'Bonnes\nréponses',
-                    value: score.toString(),
-                    color: Colors.green,
+                  Expanded(
+                    child: _StatCard(
+                      icon: Icons.check_circle,
+                      label: 'Bonnes\nréponses',
+                      value: score.toString(),
+                      color: AppTheme.successColor,
+                    ),
                   ),
-                  _StatCard(
-                    icon: Icons.cancel,
-                    label: 'Mauvaises\nréponses',
-                    value: (total - score).toString(),
-                    color: Colors.red,
+                  const SizedBox(width: AppTheme.spaceSm),
+                  Expanded(
+                    child: _StatCard(
+                      icon: Icons.cancel,
+                      label: 'Mauvaises\nréponses',
+                      value: (total - score).toString(),
+                      color: AppTheme.errorColor,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 48),
-
-              // Boutons d'action
-              ElevatedButton.icon(
+              const SizedBox(height: AppTheme.spaceXl),
+              FilledButton.icon(
                 onPressed: () {
                   Navigator.pushReplacementNamed(context, '/quiz');
                 },
                 icon: const Icon(Icons.replay),
                 label: const Text('Recommencer'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppTheme.spaceSm),
               OutlinedButton.icon(
                 onPressed: () {
                   Navigator.pushNamedAndRemoveUntil(
@@ -138,11 +126,8 @@ class QuizResultsScreen extends StatelessWidget {
                     (route) => false,
                   );
                 },
-                icon: const Icon(Icons.home),
+                icon: const Icon(Icons.home_outlined),
                 label: const Text('Retour à l\'accueil'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
               ),
             ],
           ),
@@ -167,36 +152,32 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 40,
+    return AppSurface(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.spaceMd,
+        vertical: AppTheme.spaceMd,
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 28, color: color),
+          const SizedBox(height: AppTheme.spaceXs),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.4,
               color: color,
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall,
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }

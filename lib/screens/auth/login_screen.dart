@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_provider.dart';
+import '../../theme/app_theme.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -38,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ? 'Aucun compte ne correspond à ces identifiants.'
             : 'Erreur de connexion: ${e.toString()}';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg), backgroundColor: Colors.red),
+          SnackBar(content: Text(msg), backgroundColor: AppTheme.errorColor),
         );
       }
     }
@@ -47,53 +48,55 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(AppTheme.page),
             child: Form(
               key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Logo et titre
-                  const Icon(
-                    Icons.sign_language,
-                    size: 80,
-                    color: Colors.blue,
+                  Center(
+                    child: Container(
+                      width: 84,
+                      height: 84,
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+                        boxShadow: AppTheme.shadow(context),
+                      ),
+                      child: const Icon(
+                        Icons.sign_language,
+                        size: 42,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  const Text(
+                  const SizedBox(height: AppTheme.spaceMd),
+                  Text(
                     'Langue des Signes',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.headlineSmall,
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
+                  const SizedBox(height: AppTheme.spaceXs),
+                  Text(
                     'Apprenez l\'alphabet facilement',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: muted,
+                        ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 48),
-
-                  // Champ username
+                  const SizedBox(height: AppTheme.space2xl),
                   TextFormField(
                     controller: _usernameController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Nom d\'utilisateur',
-                      prefixIcon: const Icon(Icons.person),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      prefixIcon: Icon(Icons.person_outline),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -102,15 +105,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
-
-                  // Champ password
+                  const SizedBox(height: AppTheme.spaceMd),
                   TextFormField(
                     controller: _passwordController,
                     obscureText: !_isPasswordVisible,
                     decoration: InputDecoration(
                       labelText: 'Mot de passe',
-                      prefixIcon: const Icon(Icons.lock),
+                      prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _isPasswordVisible
@@ -123,9 +124,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           });
                         },
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -134,56 +132,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 24),
-
-                  // Bouton de connexion
-                  ElevatedButton(
+                  const SizedBox(height: AppTheme.spaceLg),
+                  FilledButton(
                     onPressed: authProvider.isLoading ? null : _handleLogin,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 2,
-                      shadowColor: Theme.of(context).primaryColor.withValues(alpha: 0.4),
-                    ).copyWith(
-                      overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
-                        if (states.contains(WidgetState.pressed)) {
-                          return Colors.white.withValues(alpha: 0.2);
-                        }
-                        return null;
-                      }),
-                    ),
                     child: authProvider.isLoading
                         ? const SizedBox(
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              color: Colors.white,
                             ),
                           )
-                        : Row(
+                        : const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.login, size: 20, color: Colors.white),
+                            children: [
+                              Icon(Icons.login, size: 20),
                               SizedBox(width: 8),
-                              Text(
-                                'Se connecter',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
+                              Text('Se connecter'),
                             ],
                           ),
                   ),
-                  const SizedBox(height: 16),
-
-                  // Lien vers inscription
+                  const SizedBox(height: AppTheme.spaceMd),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -191,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         'Nouveau ici ? ',
                         style: TextStyle(
                           fontSize: 15,
-                          color: Colors.grey[600],
+                          color: muted,
                         ),
                       ),
                       TextButton(
@@ -201,43 +171,29 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                         ),
-                        child: const Text(
-                          'Crée un compte gratuitement !',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        child: const Text('Crée un compte gratuitement !'),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-
-                  // Bouton mode invité
+                  const SizedBox(height: AppTheme.spaceSm),
                   OutlinedButton.icon(
                     onPressed: () async {
-                      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                      final authProvider =
+                          Provider.of<AuthProvider>(context, listen: false);
                       try {
                         await authProvider.loginAsGuest();
                       } catch (e) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Erreur: ${e.toString()}'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Erreur: ${e.toString()}'),
+                            backgroundColor: AppTheme.errorColor,
+                          ),
+                        );
                       }
                     },
                     icon: const Icon(Icons.explore_outlined, size: 20),
                     label: const Text('Continuer sans compte'),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -248,4 +204,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
