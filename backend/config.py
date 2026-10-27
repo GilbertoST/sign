@@ -1,10 +1,12 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 from typing import List
 import secrets
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
     DATABASE_URL: str = "sqlite:///./sign_language.db"
     SECRET_KEY: str = Field(default_factory=lambda: secrets.token_urlsafe(64))
     ALGORITHM: str = "HS256"
@@ -16,9 +18,6 @@ class Settings(BaseSettings):
             "http://127.0.0.1:5173",
         ]
     )
-    
-    class Config:
-        env_file = ".env"
 
 
 settings = Settings()

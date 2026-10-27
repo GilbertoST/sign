@@ -22,7 +22,6 @@ from config import settings
 from utils.xp_calculator import (
     calculate_level_from_xp,
     xp_progress_percentage,
-    calculate_xp_reward
 )
 
 # Créer les tables
@@ -86,7 +85,7 @@ async def security_headers_middleware(request: Request, call_next):
 # Configuration CORS pour Flutter
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS or ["*"],
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -340,7 +339,7 @@ def create_sign(
     current_user: models.User = Depends(get_current_user)
 ):
     """Crée un nouveau signe (admin only)"""
-    db_sign = models.Sign(**sign.dict())
+    db_sign = models.Sign(**sign.model_dump())
     db.add(db_sign)
     db.commit()
     db.refresh(db_sign)
@@ -461,7 +460,7 @@ def create_progress(
     if existing:
         raise HTTPException(status_code=400, detail="Progress already exists")
     
-    db_progress = models.Progress(**progress.dict())
+    db_progress = models.Progress(**progress.model_dump())
     db.add(db_progress)
     db.commit()
     db.refresh(db_progress)
@@ -483,7 +482,7 @@ def update_progress(
     if db_progress.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    update_data = progress_update.dict(exclude_unset=True)
+    update_data = progress_update.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_progress, key, value)
     
@@ -634,7 +633,7 @@ async def update_user_profile(
             raise HTTPException(status_code=400, detail="Email déjà utilisé")
     
     # Mettre à jour les champs
-    update_data = profile_update.dict(exclude_unset=True)
+    update_data = profile_update.model_dump(exclude_unset=True)
     
     if "gdpr_consent" in update_data:
         new_consent = update_data.pop("gdpr_consent")
