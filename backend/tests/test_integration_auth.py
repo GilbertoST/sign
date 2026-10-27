@@ -1,8 +1,6 @@
 """
 Tests d'intégration pour l'authentification
 """
-import pytest
-from backend.tests.conftest import client
 
 
 class TestAuthIntegration:

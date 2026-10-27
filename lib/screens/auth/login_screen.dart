@@ -147,11 +147,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       elevation: 2,
-                      shadowColor: Theme.of(context).primaryColor.withOpacity(0.4),
+                      shadowColor: Theme.of(context).primaryColor.withValues(alpha: 0.4),
                     ).copyWith(
                       overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
                         if (states.contains(WidgetState.pressed)) {
-                          return Colors.white.withOpacity(0.2);
+                          return Colors.white.withValues(alpha: 0.2);
                         }
                         return null;
                       }),

@@ -2,8 +2,6 @@
 Test OWASP A07:2021 - Identification and Authentication Failures
 Teste le rate limiting pour prévenir les attaques par force brute
 """
-import pytest
-from backend.tests.conftest import client
 
 
 class TestRateLimitingSecurity:

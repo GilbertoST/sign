@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
@@ -260,7 +260,7 @@ class _WelcomeCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryColor.withOpacity(0.3),
+            color: AppTheme.primaryColor.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -276,7 +276,7 @@ class _WelcomeCard extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(AppTheme.paddingSmall),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
                   ),
                   child: Icon(
@@ -322,7 +322,7 @@ class _WelcomeCard extends StatelessWidget {
                       vertical: AppTheme.paddingSmall / 2,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
                     ),
                     child: Row(
@@ -357,7 +357,7 @@ class _WelcomeCard extends StatelessWidget {
                       vertical: AppTheme.paddingSmall / 2,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
                     ),
                     child: Row(
@@ -455,7 +455,7 @@ class _QuickActionCardState extends State<_QuickActionCard>
               Container(
                 padding: EdgeInsets.all(padding),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
                 ),
                 child: Icon(
@@ -481,7 +481,7 @@ class _QuickActionCardState extends State<_QuickActionCard>
                 widget.subtitle,
                 style: TextStyle(
                   fontSize: subtitleSize,
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 1,
@@ -516,7 +516,7 @@ class _TipCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -529,7 +529,7 @@ class _TipCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(AppTheme.paddingSmall),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
               ),
               child: Icon(

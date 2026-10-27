@@ -224,7 +224,7 @@ class _SignCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
-                color: _getDifficultyColor().withOpacity(0.2),
+                color: _getDifficultyColor().withValues(alpha: 0.2),
               ),
               child: Text(
                 sign.difficultyLabel,

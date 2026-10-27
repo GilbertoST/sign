@@ -23,44 +23,4 @@ class SlidePageRoute extends PageRouteBuilder {
         );
 }
 
-class FadePageRoute extends PageRouteBuilder {
-  final Widget page;
-  
-  FadePageRoute({required this.page})
-      : super(
-          pageBuilder: (context, animation, secondaryAnimation) => page,
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
-          },
-          transitionDuration: const Duration(milliseconds: 250),
-        );
-}
-
-class ScalePageRoute extends PageRouteBuilder {
-  final Widget page;
-  
-  ScalePageRoute({required this.page})
-      : super(
-          pageBuilder: (context, animation, secondaryAnimation) => page,
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const curve = Curves.easeInOutCubic;
-            var scaleTween = Tween<double>(begin: 0.8, end: 1.0)
-                .chain(CurveTween(curve: curve));
-            var fadeTween = Tween<double>(begin: 0.0, end: 1.0);
-            
-            return ScaleTransition(
-              scale: animation.drive(scaleTween),
-              child: FadeTransition(
-                opacity: animation.drive(fadeTween),
-                child: child,
-              ),
-            );
-          },
-          transitionDuration: const Duration(milliseconds: 300),
-        );
-}
-
 

@@ -5,8 +5,8 @@ Ce dossier contient tous les tests pour l'application Flutter.
 ## Structure
 
 ### Tests fonctionnels (`functional/`)
-- `functional_test_auth.dart` : Tests fonctionnels pour l'authentification et les modèles
-- `functional_test_user_model.dart` : Tests fonctionnels pour le modèle User
+- `auth_test.dart` : Tests fonctionnels pour l'authentification et les modèles
+- `user_model_test.dart` : Tests fonctionnels pour le modèle User
 
 ### Tests E2E (`e2e/`)
 - `appium_test_login_flow.dart` : Tests end-to-end pour le flux de connexion/inscription

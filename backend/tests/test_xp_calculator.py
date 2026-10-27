@@ -1,8 +1,7 @@
 """
 Tests unitaires pour le calculateur XP
 """
-import pytest
-from backend.utils.xp_calculator import (
+from utils.xp_calculator import (
     calculate_level_from_xp,
     xp_progress_percentage,
     calculate_xp_reward
@@ -37,12 +36,12 @@ class TestXPCalculator:
         assert calculate_level_from_xp(1000) == 5
     
     def test_level_increases_with_xp(self):
-        """Test : le niveau augmente avec l'XP"""
-        level_100 = calculate_level_from_xp(100)
-        level_200 = calculate_level_from_xp(200)
+        """Test : le niveau augmente avec l'XP aux seuils documentés"""
+        level_50 = calculate_level_from_xp(50)
+        level_150 = calculate_level_from_xp(150)
         level_500 = calculate_level_from_xp(500)
-        assert level_200 > level_100
-        assert level_500 > level_200
+        assert level_150 > level_50
+        assert level_500 > level_150
     
     def test_level_6_at_1500_xp(self):
         """Test : niveau 6 à 1500 XP"""

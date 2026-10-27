@@ -9,7 +9,6 @@ from sqlalchemy.orm import Session
 from database import get_db
 from config import settings
 import models
-import schemas
 
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")

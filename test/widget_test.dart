@@ -1,30 +1,28 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:sign/main.dart';
+import 'package:sign/models/sign.dart';
+import 'package:sign/models/user.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  test('Sign.fromJson parses a letter', () {
+    final sign = Sign.fromJson({
+      'id': 1,
+      'letter': 'A',
+      'difficulty': 1,
+    });
+    expect(sign.letter, 'A');
+    expect(sign.difficultyLabel, 'Facile');
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  test('User.fromJson uses defaults for optional fields', () {
+    final user = User.fromJson({
+      'id': 1,
+      'username': 'testuser',
+      'email': 'test@example.com',
+      'created_at': '2024-01-01T00:00:00.000Z',
+      'level': 1,
+    });
+    expect(user.username, 'testuser');
+    expect(user.isGuest, isFalse);
+    expect(user.xp, 0);
   });
 }

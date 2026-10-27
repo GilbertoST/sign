@@ -1,6 +1,6 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional
 
 
 # Schémas User
@@ -36,8 +36,7 @@ class UserResponse(UserBase):
     xp: int = 0
     total_xp: int = 0
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Token(BaseModel):
@@ -66,8 +65,7 @@ class SignCreate(SignBase):
 class SignResponse(SignBase):
     id: int
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Schémas Progress
@@ -92,8 +90,7 @@ class ProgressResponse(ProgressBase):
     id: int
     last_practice_date: Optional[datetime] = None
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Schémas LearningSession
@@ -116,8 +113,7 @@ class LearningSessionResponse(LearningSessionBase):
     end_time: Optional[datetime] = None
     score: float
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Schémas Attempt
@@ -135,8 +131,7 @@ class AttemptResponse(AttemptBase):
     id: int
     timestamp: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Schémas de statistiques
@@ -209,8 +204,7 @@ class ChallengeResponse(ChallengeBase):
     completed_at: Optional[datetime] = None
     xp_earned: int = 0
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserChallengeUpdate(BaseModel):
@@ -250,6 +244,5 @@ class FavoriteResponse(FavoriteBase):
     id: int
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 

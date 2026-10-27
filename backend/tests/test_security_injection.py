@@ -2,8 +2,6 @@
 Test OWASP A03:2021 - Injection
 Teste la protection contre les injections SQL et autres injections
 """
-import pytest
-from backend.tests.conftest import client
 
 
 class TestInjectionSecurity:

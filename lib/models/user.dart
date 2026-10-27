@@ -47,11 +47,11 @@ class User {
       guestQuizCount: json['guest_quiz_count'] ?? 0,
       profilePictureUrl: json['profile_picture_url'],
       bio: json['bio'],
-      gdprConsent: json['gdpr_consent'] ?? true,
+      gdprConsent: json['gdpr_consent'] ?? false,
       gdprConsentAt: json['gdpr_consent_at'] != null
           ? DateTime.tryParse(json['gdpr_consent_at'])
           : null,
-      dataProcessingConsent: json['data_processing_consent'] ?? true,
+      dataProcessingConsent: json['data_processing_consent'] ?? false,
       dataProcessingConsentAt: json['data_processing_consent_at'] != null
           ? DateTime.tryParse(json['data_processing_consent_at'])
           : null,

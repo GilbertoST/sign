@@ -2,8 +2,6 @@
 Test OWASP A01:2021 - Broken Access Control
 Teste que les utilisateurs ne peuvent pas accéder aux ressources d'autres utilisateurs
 """
-import pytest
-from backend.tests.conftest import client
 
 
 class TestAccessControlSecurity:
